@@ -1,7 +1,68 @@
 // ─── Capstone Projects ────────────────────────────────────────────────────────
-// No instructions. Just a spec and a rubric. Build something real.
+// type: 'guided'  → step-by-step tracked project (GuidedDetailView)
+// type: undefined → spec-only project (DetailView)
 
 export const CAPSTONE_PROJECTS = [
+  {
+    id:           'deploy-live-app',
+    title:        'Build, Deploy & Share a Live App',
+    tag:          'Full Stack',
+    difficulty:   'Intermediate',
+    timeEstimate: '2–4 hrs',
+    type:         'guided',
+    summary:      'Take an idea from zero to a live URL anyone in the world can visit. The full cycle: build it locally, push to GitHub, deploy on Vercel, and share the link.',
+    steps: [
+      {
+        id:    'build',
+        label: '01',
+        title: 'Build Locally',
+        description: 'Create a working app on your machine using Cursor. Keep it simple — a landing page, a counter, a weather widget, or a personal bio page all count. The goal is something that runs without errors.',
+        hints: [
+          'Scaffold a new project fast: open a terminal, run "npm create vite@latest", pick React, then open the folder in Cursor.',
+          'Use Cmd+K on an empty file to generate a complete component in one shot — describe what you want in plain English and let the AI build the starting point.',
+          'Run "npm install" then "npm run dev" and verify your app loads at localhost:5173 with zero console errors before moving on.',
+        ],
+        verification: 'App loads at localhost with no console errors.',
+      },
+      {
+        id:    'github',
+        label: '02',
+        title: 'Push to GitHub',
+        description: 'Initialize a Git repository, make your first commit, and push it to a new public GitHub repository. This is the foundation everything else builds on.',
+        hints: [
+          'In your project folder: "git init", then "git add .", then "git commit -m \'Initial commit\'" — three commands and you have a local repo.',
+          'Create a public repo on GitHub (github.com → New repository). Copy the remote URL, then run "git remote add origin <url>" and "git push -u origin main".',
+          'If your default branch is "master" instead of "main", push with "git push -u origin master" or rename it first with "git branch -M main".',
+        ],
+        verification: 'Code is visible at github.com/you/your-repo.',
+      },
+      {
+        id:    'vercel',
+        label: '03',
+        title: 'Deploy on Vercel',
+        description: 'Connect your GitHub repo to Vercel and get a public URL in under two minutes. Vercel auto-detects Vite and React — no configuration required for standard setups.',
+        hints: [
+          'Go to vercel.com → Log in with GitHub → "Add New Project" → Import your repository. Vercel detects Vite automatically and pre-fills the build settings.',
+          'Click Deploy and watch the build log. A green "Congratulations" screen with your live URL means it worked.',
+          'Every future push to your main branch triggers an automatic re-deploy — your live URL always reflects the latest code.',
+        ],
+        verification: 'App is live at a *.vercel.app URL.',
+      },
+      {
+        id:    'share',
+        label: '04',
+        title: 'Share Your Link',
+        description: 'Post your live URL somewhere public. Shipping means nothing if nobody sees it. Add it to your GitHub repo, tweet it, or send it to one person — any of these counts.',
+        hints: [
+          'Add the URL to your GitHub repo\'s "About" section (gear icon on the right of the repo page) so anyone who finds your code can try the live version instantly.',
+          'One sentence on Twitter/X, LinkedIn, or a developer community like DEV.to is enough: "Just shipped my first deployed app: [url]" — the act of sharing matters more than the reach.',
+          'Drop a screenshot of the live app into your README.md — a working product in a screenshot is the most convincing thing you can put in a portfolio.',
+        ],
+        verification: 'Link is public and accessible to anyone.',
+      },
+    ],
+  },
+
   {
     id: 'onboarding-ui',
     title: 'Developer Onboarding UI',

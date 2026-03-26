@@ -10,6 +10,23 @@ if (typeof document !== 'undefined' && !document.getElementById(ANIM_ID)) {
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0);    }
     }
+    @keyframes quizCorrect {
+      0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.00); }
+      25%  { box-shadow: 0 0 0 6px rgba(74,222,128,0.22), 0 0 28px rgba(74,222,128,0.10); }
+      100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.00); }
+    }
+    @keyframes quizWrong {
+      0%,100% { transform: translateX(0); }
+      18%     { transform: translateX(-5px); }
+      36%     { transform: translateX(5px); }
+      54%     { transform: translateX(-3px); }
+      72%     { transform: translateX(3px); }
+    }
+    @keyframes optionPop {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.015); }
+      100% { transform: scale(1); }
+    }
   `
   document.head.appendChild(s)
 }

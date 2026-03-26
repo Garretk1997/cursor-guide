@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CAPSTONE_PROJECTS } from './capstoneData'
 import { useMobile } from './useMobile'
 
@@ -426,6 +426,297 @@ function DetailView({ project, done, onComplete, onBack, isMobile }) {
   )
 }
 
+// ── Guided detail view (type: 'guided') ───────────────────────────────────────
+function GuidedDetailView({ project, done, onComplete, onBack, isMobile }) {
+  const STEP_KEY = `cursor-guide-steps-${project.id}`
+
+  const [stepsComplete, setStepsComplete] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(STEP_KEY)) || {} } catch { return {} }
+  })
+  const [hintsOpen, setHintsOpen]   = useState({}) // stepId → revealed hint count
+  const [visible,    setVisible]    = useState(false)
+  const [completing, setCompleting] = useState(false)
+
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 40); return () => clearTimeout(t) }, [])
+
+  const completedCount = project.steps.filter(s => stepsComplete[s.id]).length
+  const allStepsDone   = completedCount === project.steps.length
+
+  const toggleStep = useCallback((stepId) => {
+    setStepsComplete(prev => {
+      const next = { ...prev, [stepId]: !prev[stepId] }
+      localStorage.setItem(STEP_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [STEP_KEY])
+
+  const revealHint = useCallback((stepId) => {
+    setHintsOpen(prev => ({ ...prev, [stepId]: Math.min((prev[stepId] || 0) + 1, project.steps.find(s => s.id === stepId).hints.length) }))
+  }, [project.steps])
+
+  function handleFinish() {
+    if (done) return
+    setCompleting(true)
+    setTimeout(onComplete, 900)
+  }
+
+  return (
+    <div style={{
+      maxWidth: 680, margin: '0 auto',
+      padding: isMobile ? '24px 16px 100px' : '40px 32px 100px',
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0)' : 'translateY(10px)',
+      transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
+    }}>
+
+      {/* Back row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+        <button
+          onClick={onBack}
+          onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.25)'}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0',
+            fontSize: 13, color: 'rgba(255,255,255,0.25)', transition: 'color 0.15s',
+          }}
+        >
+          ← Projects
+        </button>
+        <span style={{ color: 'rgba(255,255,255,0.10)', fontSize: 12 }}>/</span>
+        <span style={{
+          fontSize: 10, fontFamily: 'monospace',
+          color: GOLD, background: GOLD_BG, border: `1px solid ${GOLD_BD}`,
+          padding: '2px 8px', borderRadius: 5, textTransform: 'uppercase', letterSpacing: '0.07em',
+        }}>
+          Guided
+        </span>
+        <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(255,255,255,0.20)' }}>
+          {project.timeEstimate}
+        </span>
+        {done && (
+          <span style={{
+            fontSize: 10, fontFamily: 'monospace', color: 'rgba(74,222,128,0.70)',
+            background: 'rgba(16,46,24,0.55)', border: '1px solid rgba(74,222,128,0.20)',
+            padding: '2px 8px', borderRadius: 9999,
+          }}>
+            ✓ shipped
+          </span>
+        )}
+      </div>
+
+      {/* Title + summary */}
+      <h1 style={{
+        fontSize: isMobile ? 22 : 28, fontWeight: 700, color: '#ede9fe',
+        letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: 12,
+      }}>
+        {project.title}
+      </h1>
+      <p style={{
+        fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.42)',
+        lineHeight: 1.80, marginBottom: 28,
+      }}>
+        {project.summary}
+      </p>
+
+      {/* Progress bar */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', letterSpacing: '0.10em' }}>
+            Progress
+          </span>
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: done ? 'rgba(74,222,128,0.65)' : GOLD }}>
+            {done ? project.steps.length : completedCount} / {project.steps.length} steps
+          </span>
+        </div>
+        <div style={{ height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.06)' }}>
+          <div style={{
+            height: '100%', borderRadius: 9999,
+            background: done ? '#4ade80' : GOLD,
+            width: `${done ? 100 : Math.round((completedCount / project.steps.length) * 100)}%`,
+            transition: 'width 0.5s ease-out',
+            boxShadow: done ? '0 0 8px rgba(74,222,128,0.35)' : `0 0 8px ${GOLD}55`,
+          }} />
+        </div>
+      </div>
+
+      {/* Step cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
+        {project.steps.map((step, idx) => {
+          const stepDone     = done || !!stepsComplete[step.id]
+          const revealed     = hintsOpen[step.id] || 0
+          const hasMoreHints = revealed < step.hints.length
+
+          return (
+            <div key={step.id} style={{
+              borderRadius: 13,
+              background: stepDone
+                ? 'linear-gradient(150deg, rgba(14,36,20,0.80) 0%, rgba(8,20,12,0.88) 100%)'
+                : 'linear-gradient(150deg, rgba(22,16,42,0.82) 0%, rgba(11,8,25,0.90) 100%)',
+              border: `1px solid ${stepDone ? 'rgba(74,222,128,0.18)' : BORDER}`,
+              backdropFilter: 'blur(14px)',
+              padding: isMobile ? '16px' : '18px 20px',
+              transition: 'all 0.2s ease',
+            }}>
+              {/* Step header */}
+              <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <span style={{
+                  fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
+                  color: stepDone ? '#4ade80' : GOLD,
+                  background: stepDone ? 'rgba(16,46,24,0.55)' : GOLD_BG,
+                  border: `1px solid ${stepDone ? 'rgba(74,222,128,0.22)' : GOLD_BD}`,
+                  borderRadius: 6, padding: '3px 8px', flexShrink: 0, marginTop: 2,
+                  transition: 'all 0.3s ease',
+                }}>
+                  {stepDone ? '✓' : step.label}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{
+                    fontSize: isMobile ? 14 : 15, fontWeight: 600,
+                    color: stepDone ? '#86efac' : '#ede9fe',
+                    letterSpacing: '-0.2px', marginBottom: 7,
+                  }}>
+                    {step.title}
+                  </h3>
+                  <p style={{
+                    fontSize: isMobile ? 12.5 : 13,
+                    color: 'rgba(255,255,255,0.48)',
+                    lineHeight: 1.68,
+                  }}>
+                    {step.description}
+                  </p>
+
+                  {/* Verification */}
+                  <div style={{
+                    marginTop: 10,
+                    fontSize: 11, fontFamily: 'monospace',
+                    color: stepDone ? 'rgba(74,222,128,0.55)' : 'rgba(255,255,255,0.22)',
+                    display: 'flex', alignItems: 'center', gap: 5,
+                  }}>
+                    <span style={{ opacity: 0.6 }}>✔</span>
+                    <span>{step.verification}</span>
+                  </div>
+
+                  {/* Revealed hints */}
+                  {revealed > 0 && (
+                    <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                      {step.hints.slice(0, revealed).map((hint, hi) => (
+                        <div key={hi} style={{
+                          borderRadius: 8,
+                          background: 'rgba(245,158,11,0.06)',
+                          border: '1px solid rgba(245,158,11,0.14)',
+                          padding: isMobile ? '9px 12px' : '8px 12px',
+                          fontSize: isMobile ? 12 : 12.5,
+                          color: 'rgba(255,255,255,0.52)',
+                          lineHeight: 1.60,
+                        }}>
+                          <span style={{ fontFamily: 'monospace', fontSize: 9, color: GOLD, marginRight: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                            hint {hi + 1}
+                          </span>
+                          {hint}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Hint reveal + step checkbox */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, flexWrap: 'wrap', gap: 8 }}>
+                    {hasMoreHints && !stepDone ? (
+                      <button
+                        onClick={() => revealHint(step.id)}
+                        onMouseEnter={e => e.currentTarget.style.color = GOLD}
+                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(245,158,11,0.55)'}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          fontSize: 11, fontFamily: 'monospace',
+                          color: 'rgba(245,158,11,0.55)',
+                          padding: '3px 0', transition: 'color 0.15s',
+                        }}
+                      >
+                        Reveal hint {revealed + 1} →
+                      </button>
+                    ) : (
+                      <span />
+                    )}
+
+                    {!done && (
+                      <button
+                        onClick={() => toggleStep(step.id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          background: 'none', border: 'none', cursor: 'pointer', padding: '3px 0',
+                        }}
+                      >
+                        <span style={{
+                          width: 16, height: 16, borderRadius: 4, flexShrink: 0,
+                          border: stepDone ? '1.5px solid rgba(74,222,128,0.70)' : '1.5px solid rgba(255,255,255,0.22)',
+                          background: stepDone ? 'rgba(74,222,128,0.18)' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.25s ease',
+                        }}>
+                          {stepDone && <span style={{ fontSize: 9, color: '#4ade80', lineHeight: 1 }}>✓</span>}
+                        </span>
+                        <span style={{
+                          fontSize: 11, fontFamily: 'monospace',
+                          color: stepDone ? 'rgba(74,222,128,0.60)' : 'rgba(255,255,255,0.25)',
+                          transition: 'color 0.2s',
+                        }}>
+                          {stepDone ? 'done' : 'mark done'}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Finish button / done state */}
+      {done ? (
+        <div style={{
+          borderRadius: 13, padding: isMobile ? '18px' : '20px 24px',
+          background: 'linear-gradient(150deg, rgba(14,36,20,0.82) 0%, rgba(8,20,12,0.90) 100%)',
+          border: '1px solid rgba(74,222,128,0.22)',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: isMobile ? 28 : 32, marginBottom: 10 }}>🚀</div>
+          <p style={{ fontSize: isMobile ? 14 : 15, fontWeight: 600, color: '#86efac', marginBottom: 6 }}>
+            Project Shipped!
+          </p>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.32)', lineHeight: 1.6 }}>
+            You built it, deployed it, and shared it. That's the full cycle.
+          </p>
+        </div>
+      ) : (
+        <button
+          onClick={handleFinish}
+          disabled={!allStepsDone}
+          onMouseEnter={e => { if (allStepsDone) { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 0 32px rgba(74,222,128,0.30)' } }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = allStepsDone ? '0 0 20px rgba(74,222,128,0.16)' : 'none' }}
+          style={{
+            width: '100%',
+            padding: isMobile ? '14px 20px' : '12px 24px',
+            fontSize: isMobile ? 15 : 14, fontWeight: 600, borderRadius: 10,
+            border: allStepsDone ? '1px solid rgba(74,222,128,0.32)' : `1px solid ${BORDER}`,
+            background: completing
+              ? 'linear-gradient(135deg, #16a34a, #15803d)'
+              : allStepsDone
+                ? 'rgba(74,222,128,0.12)'
+                : 'rgba(255,255,255,0.03)',
+            color: completing ? '#fff' : allStepsDone ? '#4ade80' : 'rgba(255,255,255,0.22)',
+            cursor: allStepsDone ? 'pointer' : 'not-allowed',
+            transition: 'all 0.25s ease, transform 0.15s ease',
+            boxShadow: allStepsDone ? '0 0 20px rgba(74,222,128,0.16)' : 'none',
+          }}
+        >
+          {completing ? '✓ Project Shipped!' : allStepsDone ? 'Mark as Complete →' : `Complete all ${project.steps.length} steps to finish`}
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ── Public component ──────────────────────────────────────────────────────────
 export default function Capstone({ capstonesDone, onComplete, onExit }) {
   const isMobile = useMobile()
@@ -468,14 +759,25 @@ export default function Capstone({ capstonesDone, onComplete, onExit }) {
       {/* ── Scrollable content ── */}
       <main style={{ flex: 1, overflowY: 'auto' }}>
         {project ? (
-          <DetailView
-            key={selectedId}
-            project={project}
-            done={capstonesDone.has(selectedId)}
-            onComplete={() => onComplete(selectedId)}
-            onBack={() => setSelectedId(null)}
-            isMobile={isMobile}
-          />
+          project.type === 'guided' ? (
+            <GuidedDetailView
+              key={selectedId}
+              project={project}
+              done={capstonesDone.has(selectedId)}
+              onComplete={() => onComplete(selectedId)}
+              onBack={() => setSelectedId(null)}
+              isMobile={isMobile}
+            />
+          ) : (
+            <DetailView
+              key={selectedId}
+              project={project}
+              done={capstonesDone.has(selectedId)}
+              onComplete={() => onComplete(selectedId)}
+              onBack={() => setSelectedId(null)}
+              isMobile={isMobile}
+            />
+          )
         ) : (
           <ListView
             capstonesDone={capstonesDone}

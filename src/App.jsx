@@ -9,9 +9,12 @@ import Review     from './Review'
 import Project    from './Project'
 import Challenge  from './Challenge'
 import Capstone   from './Capstone'
-import StepContent  from './StepContent'
-import Completion   from './Completion'
-import { SECTIONS } from './sectionsData'
+import StepContent    from './StepContent'
+import Completion     from './Completion'
+import FinalExam      from './FinalExam'
+import ExamResults    from './ExamResults'
+import ChallengesHub  from './ChallengesHub'
+import { SECTIONS }   from './sectionsData'
 
 const TOTAL_STEPS = SECTIONS.reduce((sum, s) => sum + s.steps.length, 0)
 const STORAGE_KEY = 'cursor-guide-progress'
@@ -70,6 +73,9 @@ export default function App() {
   const [bestScore,    setBestScore]    = useState(saved?.bestScore    ?? 0)
   const [capstonesDone,    setCapstonesDone]    = useState(saved?.capstonesDone    ?? new Set())
   const [stepQuizAnswers,  setStepQuizAnswers]  = useState(saved?.stepQuizAnswers  ?? {})
+  const [examQuestions,  setExamQuestions]  = useState([])
+  const [examIndex,      setExamIndex]      = useState(0)
+  const [examAnswers,    setExamAnswers]    = useState({})
   const [canProceed,  setCanProceed]  = useState(false)
   const [visible,     setVisible]     = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -195,14 +201,6 @@ export default function App() {
     return a
   }
 
-  function handleBeginAssessment() {
-    const order = shuffle(QUIZ_QUESTIONS.map((_, i) => i))
-    setQuizOrder(order)
-    setPhase('quiz')
-    setQuizIndex(0)
-    setQuizAnswers({})
-  }
-
   function handleAnswer(qIdx, aIdx) {
     setQuizAnswers(prev => ({ ...prev, [qIdx]: aIdx }))
   }
@@ -231,9 +229,71 @@ export default function App() {
   function handleCapstoneComplete(id) { setCapstonesDone(prev => new Set(prev).add(id)) }
   function handleCapstoneExit() { setPhase('results') }
   function handleCompletionReviewAnswers() { setPhase('review') }
+  function handleOpenChallengesHub()      { setPhase('challenges-hub') }
+  function handleCloseChallengesHub()     { setPhase('course') }
+  function handleHubMarkComplete(idx)     { setChallengesDone(prev => new Set(prev).add(idx)) }
 
   function handleStepQuizAnswer(mi, si, selected) {
     setStepQuizAnswers(prev => ({ ...prev, [`${mi}-${si}`]: selected }))
+  }
+
+  // ─── Final Exam handlers ──────────────────────────────────────────────────
+
+  function selectExamQuestions() {
+    const byModule = {}
+    QUIZ_QUESTIONS.forEach(q => {
+      if (!byModule[q.module]) byModule[q.module] = []
+      byModule[q.module].push(q)
+    })
+    const selected = []
+    Object.values(byModule).forEach(qs => {
+      const shuffled = shuffle([...qs])
+      selected.push(...shuffled.slice(0, 2))
+    })
+    return selected
+  }
+
+  function handleBeginExam() {
+    setExamQuestions(selectExamQuestions())
+    setExamIndex(0)
+    setExamAnswers({})
+    setPhase('exam')
+  }
+
+  function handleExamAnswer(idx, answer) {
+    setExamAnswers(prev => ({ ...prev, [idx]: answer }))
+  }
+
+  function handleExamNext() {
+    if (examIndex < examQuestions.length - 1) {
+      setExamIndex(n => n + 1)
+    } else {
+      setPhase('exam-results')
+    }
+  }
+
+  function handleExamBack() {
+    if (examIndex > 0) setExamIndex(n => n - 1)
+  }
+
+  function handleExamRetake() {
+    setExamQuestions(selectExamQuestions())
+    setExamIndex(0)
+    setExamAnswers({})
+    setPhase('exam')
+  }
+
+  // moduleName: null → go to complete/course based on score; string → jump to that module
+  function handleExamContinue(moduleName) {
+    if (moduleName) {
+      const idx = SECTIONS.findIndex(s => s.title === moduleName)
+      if (idx !== -1) { setModuleIndex(idx); setStepIndex(0) }
+      setPhase('course')
+      return
+    }
+    const c = examQuestions.filter((q, i) => examAnswers[i] === q.correct).length
+    const p = examQuestions.length > 0 ? Math.round((c / examQuestions.length) * 100) : 0
+    setPhase(p >= 80 ? 'complete' : 'course')
   }
 
   function handleReset() {
@@ -292,6 +352,40 @@ export default function App() {
     </>
   )
 
+  if (phase === 'challenges-hub') return (
+    <><Starfield /><FullGlows />
+      <ChallengesHub
+        challengesDone={challengesDone}
+        onComplete={handleHubMarkComplete}
+        onBack={handleCloseChallengesHub}
+      />
+    </>
+  )
+
+  if (phase === 'exam') return (
+    <><Starfield /><FullGlows />
+      <FinalExam
+        questions={examQuestions}
+        examIndex={examIndex}
+        examAnswers={examAnswers}
+        onAnswer={handleExamAnswer}
+        onNext={handleExamNext}
+        onBack={handleExamBack}
+      />
+    </>
+  )
+
+  if (phase === 'exam-results') return (
+    <><Starfield /><FullGlows />
+      <ExamResults
+        examQuestions={examQuestions}
+        examAnswers={examAnswers}
+        onRetake={handleExamRetake}
+        onContinue={handleExamContinue}
+      />
+    </>
+  )
+
   if (phase === 'complete') return (
     <><Starfield /><FullGlows />
       <Completion
@@ -305,7 +399,7 @@ export default function App() {
         challengesDone={challengesDone}
         totalModules={SECTIONS.length}
         onRestart={handleReset}
-        onBeginAssessment={handleBeginAssessment}
+        onBeginAssessment={handleBeginExam}
         onReviewAnswers={handleCompletionReviewAnswers}
       />
     </>
@@ -405,7 +499,7 @@ export default function App() {
           onClick={() => setSidebarOpen(false)}
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(0,0,0,0.55)',
+            background: 'rgba(0,0,0,0.34)',
             zIndex: 49,
           }}
         />
@@ -463,7 +557,7 @@ export default function App() {
                   onClick={() => setSidebarOpen(false)}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'rgba(255,255,255,0.35)', padding: '6px 8px',
+                    color: 'rgba(255,255,255,0.58)', padding: '6px 8px',
                     fontSize: 16, lineHeight: 1, borderRadius: 6,
                     flexShrink: 0,
                   }}
@@ -504,9 +598,9 @@ export default function App() {
                     marginBottom:   2,
                     border:         isActive ? `1px solid ${C.activeItemBorder}` : '1px solid transparent',
                     background:     isActive ? C.activeItem : 'transparent',
-                    color:          isActive ? '#c4b5fd'
-                                  : isDone   ? 'rgba(255,255,255,0.45)'
-                                             : 'rgba(255,255,255,0.18)',
+                    color:          isActive ? '#ddd6fe'
+                                  : isDone   ? 'rgba(255,255,255,0.58)'
+                                             : 'rgba(255,255,255,0.32)',
                     cursor:         isAccessible ? 'pointer' : 'not-allowed',
                     textAlign:      'left',
                     fontSize:       13,
@@ -536,8 +630,8 @@ export default function App() {
                                          : '1px solid rgba(255,255,255,0.12)',
                     background: isDone ? '#7c3aed' : 'transparent',
                     color:      isDone   ? '#fff'
-                              : isActive ? '#a78bfa'
-                                         : 'rgba(255,255,255,0.25)',
+                              : isActive ? '#c4b5fd'
+                                         : 'rgba(255,255,255,0.40)',
                   }}>
                     {isDone ? '✓' : i + 1}
                   </span>
@@ -565,6 +659,50 @@ export default function App() {
             })}
           </nav>
 
+          {/* Challenges hub entry */}
+          <div style={{ padding: '8px 12px 0' }}>
+            <p style={{
+              fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+              marginBottom: 6, paddingLeft: 10,
+            }}>
+              Practice
+            </p>
+            <button
+              onClick={() => { if (isMobile) setSidebarOpen(false); handleOpenChallengesHub() }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                padding: isMobile ? '11px 10px' : '9px 10px',
+                borderRadius: 9, marginBottom: 2,
+                border: phase === 'challenges-hub' ? '1px solid rgba(245,158,11,0.35)' : '1px solid transparent',
+                background: phase === 'challenges-hub' ? 'rgba(245,158,11,0.10)' : 'transparent',
+                color: phase === 'challenges-hub' ? '#fde68a' : 'rgba(255,255,255,0.52)',
+                cursor: 'pointer',
+                textAlign: 'left', fontSize: 13,
+                transition: 'background 0.2s ease, color 0.2s ease',
+              }}
+              onMouseEnter={e => { if (phase !== 'challenges-hub') e.currentTarget.style.background = 'rgba(245,158,11,0.06)' }}
+              onMouseLeave={e => { if (phase !== 'challenges-hub') e.currentTarget.style.background = 'transparent' }}
+            >
+              <span style={{
+                width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10,
+                border: phase === 'challenges-hub' ? '1px solid rgba(245,158,11,0.50)' : '1px solid rgba(255,255,255,0.14)',
+                background: phase === 'challenges-hub' ? 'rgba(245,158,11,0.15)' : 'transparent',
+                color: phase === 'challenges-hub' ? '#fde68a' : 'rgba(255,255,255,0.48)',
+              }}>
+                ⚡
+              </span>
+              <span style={{ flex: 1 }}>Challenges</span>
+              {challengesDone.size > 0 && (
+                <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(245,158,11,0.50)' }}>
+                  {challengesDone.size}/{SECTIONS.length}
+                </span>
+              )}
+            </button>
+          </div>
+
           {/* Capstone entry */}
           <div style={{ padding: '8px 12px 0' }}>
             <p style={{
@@ -585,7 +723,7 @@ export default function App() {
                 background: phase === 'capstone' ? 'rgba(245,158,11,0.10)' : 'transparent',
                 color: modulesDone.size < SECTIONS.length
                   ? 'rgba(255,255,255,0.15)'
-                  : phase === 'capstone' ? '#fcd34d' : 'rgba(255,255,255,0.40)',
+                  : phase === 'capstone' ? '#fde68a' : 'rgba(255,255,255,0.55)',
                 cursor: modulesDone.size < SECTIONS.length ? 'not-allowed' : 'pointer',
                 textAlign: 'left', fontSize: 13,
                 transition: 'background 0.2s ease, color 0.2s ease',
@@ -632,12 +770,12 @@ export default function App() {
             <button
               onClick={handleReset}
               style={{
-                width: '100%', fontSize: 10, color: 'rgba(255,255,255,0.16)',
+                width: '100%', fontSize: 10, color: 'rgba(255,255,255,0.30)',
                 background: 'none', border: 'none', cursor: 'pointer',
                 padding: '12px 0 14px', textAlign: 'center', transition: 'color 0.15s',
               }}
-              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.38)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.16)'}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.30)'}
             >
               Reset progress
             </button>
@@ -665,7 +803,7 @@ export default function App() {
                       background: 'none', border: 'none', cursor: 'pointer',
                       padding: '5px 6px', marginRight: 4, borderRadius: 6,
                       display: 'flex', flexDirection: 'column', gap: 4,
-                      color: 'rgba(255,255,255,0.50)',
+                      color: 'rgba(255,255,255,0.72)',
                     }}
                   >
                     <span style={{ display: 'block', width: 17, height: 1.5, background: 'currentColor', borderRadius: 9999 }} />
@@ -823,13 +961,13 @@ export default function App() {
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: isMobile ? '11px 14px' : '7px 14px',
                   fontSize: isMobile ? 14 : 13, borderRadius: 8,
-                  color: isFirst ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.38)',
+                  color: isFirst ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.55)',
                   background: 'none', border: 'none', cursor: isFirst ? 'not-allowed' : 'pointer',
                   transition: 'color 0.15s',
                   minHeight: isMobile ? 44 : 'auto',
                 }}
-                onMouseEnter={e => { if (!isFirst) e.currentTarget.style.color = 'rgba(255,255,255,0.65)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = isFirst ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.38)' }}
+                onMouseEnter={e => { if (!isFirst) e.currentTarget.style.color = 'rgba(255,255,255,0.85)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = isFirst ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.55)' }}
               >
                 ← Previous
               </button>
@@ -851,15 +989,15 @@ export default function App() {
 
               {isFinished ? (
                 <button
-                  onClick={handleBeginAssessment}
+                  onClick={handleBeginExam}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)' }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
                   style={{
                     padding: isMobile ? '11px 16px' : '7px 18px',
                     fontSize: isMobile ? 14 : 13, fontWeight: 500, borderRadius: 8,
-                    border: '1px solid rgba(139,92,246,0.38)',
-                    background: 'rgba(124,58,237,0.14)',
-                    color: '#c4b5fd', cursor: 'pointer',
+                    border: '1px solid rgba(167,139,250,0.55)',
+                    background: 'rgba(124,58,237,0.28)',
+                    color: '#ede9fe', cursor: 'pointer',
                     animation: 'next-pulse 2.6s ease-in-out infinite',
                     transition: 'transform 0.15s ease',
                     minHeight: isMobile ? 44 : 'auto',
@@ -879,9 +1017,9 @@ export default function App() {
                     border: 'none', cursor: canProceed ? 'pointer' : 'not-allowed',
                     transition: 'background 0.2s ease, color 0.2s ease, transform 0.15s ease',
                     background: canProceed
-                      ? 'linear-gradient(135deg, #7c3aed, #6d28d9)'
-                      : 'rgba(255,255,255,0.05)',
-                    color: canProceed ? '#fff' : 'rgba(255,255,255,0.20)',
+                      ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+                      : 'rgba(255,255,255,0.10)',
+                    color: canProceed ? '#fff' : 'rgba(255,255,255,0.34)',
                     animation: canProceed ? 'next-pulse 2.6s ease-in-out infinite' : 'none',
                     minHeight: isMobile ? 44 : 'auto',
                   }}
