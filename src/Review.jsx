@@ -6,10 +6,11 @@ const LETTERS  = ['A', 'B', 'C', 'D']
 const BORDER   = 'rgba(255,255,255,0.055)'
 const GLASS_H  = 'rgba(5,4,14,0.93)'
 
-export default function Review({ quizAnswers, onRestart, onBack }) {
+export default function Review({ quizAnswers, onRestart, onBack, quizOrder }) {
   const isMobile = useMobile()
-  const score  = QUIZ_QUESTIONS.reduce((n, q, i) => quizAnswers[i] === q.correct ? n + 1 : n, 0)
-  const pct    = Math.round((score / QUIZ_QUESTIONS.length) * 100)
+  const order  = quizOrder && quizOrder.length > 0 ? quizOrder : QUIZ_QUESTIONS.map((_, i) => i)
+  const score  = order.reduce((n, qIdx, i) => quizAnswers[i] === QUIZ_QUESTIONS[qIdx].correct ? n + 1 : n, 0)
+  const pct    = Math.round((score / order.length) * 100)
   const passed = pct >= 90
 
   const [visible, setVisible] = useState(false)
@@ -46,7 +47,7 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
           fontFamily: 'monospace', fontSize: 12,
           color: passed ? 'rgba(134,239,172,0.70)' : 'rgba(251,191,36,0.70)',
         }}>
-          {score} / {QUIZ_QUESTIONS.length} correct — {pct}%
+          {score} / {order.length} correct — {pct}%
         </span>
       </div>
 
@@ -58,16 +59,15 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
           transform: visible ? 'translateY(0)' : 'translateY(10px)',
           transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
         }}>
-          {QUIZ_QUESTIONS.map((q, qi) => {
-            const userAnswer  = quizAnswers[qi]
-            const isCorrect   = userAnswer === q.correct
+          {order.map((qIdx, qi) => {
+            const q          = QUIZ_QUESTIONS[qIdx]
+            const userAnswer = quizAnswers[qi]
+            const isCorrect  = userAnswer === q.correct
 
             return (
               <div key={qi} style={{
                 borderRadius: 12,
-                background: isCorrect
-                  ? 'rgba(12,38,20,0.72)'
-                  : 'rgba(38,12,12,0.72)',
+                background: isCorrect ? 'rgba(12,38,20,0.72)' : 'rgba(38,12,12,0.72)',
                 border: `1px solid ${isCorrect ? 'rgba(74,222,128,0.17)' : 'rgba(248,113,113,0.17)'}`,
                 backdropFilter: 'blur(10px)',
                 padding: '18px 20px',
@@ -76,10 +76,7 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
 
                 {/* Question header */}
                 <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 14 }}>
-                  <span style={{
-                    fontSize: 15, flexShrink: 0, marginTop: 1,
-                    color: isCorrect ? '#4ade80' : '#f87171',
-                  }}>
+                  <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1, color: isCorrect ? '#4ade80' : '#f87171' }}>
                     {isCorrect ? '✓' : '✗'}
                   </span>
                   <div style={{ flex: 1 }}>
@@ -102,27 +99,39 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
                     const isRight     = oi === q.correct
                     const isUserPick  = oi === userAnswer
                     const isWrongPick = isUserPick && !isRight
-
-                    let color  = 'rgba(255,255,255,0.20)'
+                    let color = 'rgba(255,255,255,0.20)'
                     if (isRight)     color = '#4ade80'
                     if (isWrongPick) color = '#f87171'
-
                     return (
                       <div key={oi} style={{
                         display: 'flex', gap: 8, alignItems: 'flex-start',
                         fontSize: 13, color,
                         fontWeight: isRight || isWrongPick ? 500 : 400,
                       }}>
-                        <span style={{ fontFamily: 'monospace', flexShrink: 0, opacity: 0.55 }}>
-                          {LETTERS[oi]}
-                        </span>
+                        <span style={{ fontFamily: 'monospace', flexShrink: 0, opacity: 0.55 }}>{LETTERS[oi]}</span>
                         <span style={{ flex: 1 }}>{opt}</span>
-                        {isRight    && <span style={{ fontSize: 10, opacity: 0.65, flexShrink: 0 }}>correct</span>}
+                        {isRight     && <span style={{ fontSize: 10, opacity: 0.65, flexShrink: 0 }}>correct</span>}
                         {isWrongPick && <span style={{ fontSize: 10, opacity: 0.65, flexShrink: 0 }}>your answer</span>}
                       </div>
                     )
                   })}
                 </div>
+
+                {/* Explanation */}
+                {q.explanation && (
+                  <div style={{
+                    marginTop: 12, paddingTop: 12,
+                    borderTop: `1px solid ${isCorrect ? 'rgba(74,222,128,0.10)' : 'rgba(248,113,113,0.10)'}`,
+                    paddingLeft: 28,
+                  }}>
+                    <p style={{
+                      fontSize: 12.5, color: 'rgba(255,255,255,0.42)', lineHeight: 1.65,
+                      fontStyle: 'italic',
+                    }}>
+                      {q.explanation}
+                    </p>
+                  </div>
+                )}
 
               </div>
             )

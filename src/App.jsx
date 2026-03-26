@@ -1,69 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
+import { QUIZ_QUESTIONS } from './quizData'
 import { useMobile } from './useMobile'
+import SkillDashboard, { calcSkillOverall } from './SkillDashboard'
 import Starfield from './Starfield'
-import Quiz    from './Quiz'
-import Results from './Results'
-import Review  from './Review'
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const SECTIONS = [
-  {
-    id: 'setup-cursor',
-    title: 'Setup Cursor',
-    description: 'Get your AI-powered code editor installed and configured.',
-    steps: [
-      { title: 'Download Cursor', description: 'Visit cursor.com and download the installer for your OS — macOS, Windows, or Linux. Cursor is built on VS Code so the interface will feel familiar.', hasImage: true },
-      { title: 'Install and Sign In', description: 'Run the installer, open Cursor, and sign in with GitHub or create a free account. This unlocks AI Tab completion and the Chat panel.', hasImage: true },
-      { title: 'Connect an AI Model', description: 'Open Settings → Cursor → Models. Claude and GPT-4o are available out of the box. Pick your preferred model for Chat and Tab completions.', hasImage: false },
-      { title: 'Try Your First AI Edit', description: 'Open any file, select some code, and press Cmd+K (Mac) or Ctrl+K (Windows). Type what you want changed and hit Enter.', hasImage: false },
-    ],
-  },
-  {
-    id: 'github-basics',
-    title: 'GitHub Basics',
-    description: 'Learn version control fundamentals with Git and GitHub.',
-    steps: [
-      { title: 'Create a GitHub Account', description: 'Sign up at github.com. Your username becomes your public developer identity — it appears on commits, pull requests, and your profile.', hasImage: true },
-      { title: 'Install Git', description: 'On macOS run `brew install git`. On Windows download from git-scm.com. Verify with `git --version` in your terminal.', hasImage: false },
-      { title: 'Configure Your Identity', description: 'Run `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`. These values stamp every commit you make.', hasImage: false },
-      { title: 'Create Your First Repository', description: 'On GitHub click New → name your repo → check "Add a README" → Create. You now have a remote repo ready to receive code.', hasImage: true },
-    ],
-  },
-  {
-    id: 'first-project',
-    title: 'First Project',
-    description: 'Clone a repo, make changes in Cursor, and push your first commit.',
-    steps: [
-      { title: 'Clone the Repository', description: 'Copy the repo URL from GitHub, then run `git clone <url>` in your terminal. This downloads the full project history to your machine.', hasImage: true },
-      { title: 'Open in Cursor', description: 'Use File → Open Folder, or drag the project folder into Cursor. The Explorer panel on the left shows your file tree.', hasImage: true },
-      { title: 'Make a Change', description: 'Edit the README or any file. Use Cursor Chat (Cmd+L) to ask questions about the code, or Tab to autocomplete as you type.', hasImage: false },
-      { title: 'Commit and Push', description: 'Run `git add .`, then `git commit -m "my first change"`, then `git push`. Your change is now live on GitHub.', hasImage: false },
-    ],
-  },
-  {
-    id: 'apis-webhooks',
-    title: 'APIs & Webhooks',
-    description: 'Connect your app to external services and respond to real-time events.',
-    steps: [
-      { title: 'Understanding REST APIs', description: 'APIs let services talk to each other over HTTP. The four methods: GET (read), POST (create), PUT (update), DELETE (remove).', hasImage: true },
-      { title: 'Make Your First API Call', description: "Try the GitHub API: `curl https://api.github.com/users/yourusername`. You'll get back a JSON object with your public profile data.", hasImage: false },
-      { title: 'Set Up a Webhook', description: 'In your GitHub repo go to Settings → Webhooks → Add webhook. Paste your server URL and choose which events to listen for.', hasImage: true },
-      { title: 'Handle Incoming Events', description: 'Create a POST endpoint on your server. Parse the JSON body, verify the signature, run your logic, then respond 200.', hasImage: false },
-    ],
-  },
-  {
-    id: 'advanced-builds',
-    title: 'Advanced Builds',
-    description: 'Automate deployments with CI/CD and ship with confidence.',
-    steps: [
-      { title: 'CI/CD Pipelines', description: 'Add `.github/workflows/ci.yml` to your repo. GitHub Actions runs your tests on every push — catching bugs before they reach production.', hasImage: true },
-      { title: 'Environment Variables', description: "Store secrets in `.env.local` locally and in your platform's settings for production. Never commit `.env` files to Git.", hasImage: false },
-      { title: 'Deploy to Vercel', description: 'Connect your GitHub repo at vercel.com. Every push to `main` triggers an automatic deploy. PRs get their own preview URLs.', hasImage: true },
-      { title: 'Monitor Your App', description: 'Use Vercel Analytics for traffic and Core Web Vitals. Check function logs in the dashboard. Set alerts so you know before users do.', hasImage: false },
-    ],
-  },
-]
+import Quiz       from './Quiz'
+import Results    from './Results'
+import Review     from './Review'
+import Project    from './Project'
+import Challenge  from './Challenge'
+import Capstone   from './Capstone'
+import StepContent  from './StepContent'
+import Completion   from './Completion'
+import { SECTIONS } from './sectionsData'
 
 const TOTAL_STEPS = SECTIONS.reduce((sum, s) => sum + s.steps.length, 0)
 const STORAGE_KEY = 'cursor-guide-progress'
@@ -88,45 +36,22 @@ function loadSaved() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    const { moduleIndex, stepIndex, modulesDone, phase, quizIndex, quizAnswers } = JSON.parse(raw)
+    const { moduleIndex, stepIndex, modulesDone, phase, quizIndex, quizAnswers, quizOrder, projectsDone, challengesDone, bestScore, capstonesDone, stepQuizAnswers } = JSON.parse(raw)
     return {
-      moduleIndex:  moduleIndex  ?? 0,
-      stepIndex:    stepIndex    ?? 0,
-      modulesDone:  new Set(modulesDone ?? []),
-      phase:        phase        ?? 'course',
-      quizIndex:    quizIndex    ?? 0,
-      quizAnswers:  quizAnswers  ?? {},
+      moduleIndex:      moduleIndex      ?? 0,
+      stepIndex:        stepIndex        ?? 0,
+      modulesDone:      new Set(modulesDone    ?? []),
+      projectsDone:     new Set(projectsDone   ?? []),
+      challengesDone:   new Set(challengesDone ?? []),
+      capstonesDone:    new Set(capstonesDone  ?? []),
+      phase:            phase            ?? 'course',
+      quizIndex:        quizIndex        ?? 0,
+      quizAnswers:      quizAnswers      ?? {},
+      quizOrder:        quizOrder        ?? [],
+      bestScore:        bestScore        ?? 0,
+      stepQuizAnswers:  stepQuizAnswers  ?? {},
     }
   } catch { return null }
-}
-
-// ─── Components ──────────────────────────────────────────────────────────────
-
-function ImagePlaceholder({ label }) {
-  return (
-    <div style={{
-      marginTop: '20px',
-      borderRadius: '12px',
-      border: '1px dashed rgba(255,255,255,0.08)',
-      background: 'rgba(10,8,22,0.60)',
-      height: '176px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      userSelect: 'none',
-    }}>
-      <svg style={{ width: 26, height: 26, color: 'rgba(255,255,255,0.12)' }}
-        fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 19.5h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-      </svg>
-      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.18)' }}>
-        {label}
-      </span>
-    </div>
-  )
 }
 
 // ─── App ─────────────────────────────────────────────────────────────────────
@@ -135,10 +60,16 @@ export default function App() {
   const saved = loadSaved()
   const [moduleIndex, setModuleIndex] = useState(saved?.moduleIndex ?? 0)
   const [stepIndex,   setStepIndex]   = useState(saved?.stepIndex   ?? 0)
-  const [modulesDone, setModulesDone] = useState(saved?.modulesDone ?? new Set())
-  const [phase,       setPhase]       = useState(saved?.phase       ?? 'course')
+  const [modulesDone,  setModulesDone]  = useState(saved?.modulesDone  ?? new Set())
+  const [projectsDone,   setProjectsDone]   = useState(saved?.projectsDone   ?? new Set())
+  const [challengesDone, setChallengesDone] = useState(saved?.challengesDone ?? new Set())
+  const [phase,        setPhase]        = useState(saved?.phase        ?? 'course')
   const [quizIndex,   setQuizIndex]   = useState(saved?.quizIndex   ?? 0)
   const [quizAnswers, setQuizAnswers] = useState(saved?.quizAnswers ?? {})
+  const [quizOrder,   setQuizOrder]   = useState(saved?.quizOrder   ?? [])
+  const [bestScore,    setBestScore]    = useState(saved?.bestScore    ?? 0)
+  const [capstonesDone,    setCapstonesDone]    = useState(saved?.capstonesDone    ?? new Set())
+  const [stepQuizAnswers,  setStepQuizAnswers]  = useState(saved?.stepQuizAnswers  ?? {})
   const [canProceed,  setCanProceed]  = useState(false)
   const [visible,     setVisible]     = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -155,10 +86,15 @@ export default function App() {
   // Persist — includes quiz phase state so refresh returns to correct screen
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      moduleIndex, stepIndex, modulesDone: [...modulesDone],
-      phase, quizIndex, quizAnswers,
+      moduleIndex, stepIndex,
+      modulesDone:    [...modulesDone],
+      projectsDone:   [...projectsDone],
+      challengesDone: [...challengesDone],
+      phase, quizIndex, quizAnswers, quizOrder, bestScore,
+      capstonesDone: [...capstonesDone],
+      stepQuizAnswers,
     }))
-  }, [moduleIndex, stepIndex, modulesDone, phase, quizIndex, quizAnswers])
+  }, [moduleIndex, stepIndex, modulesDone, projectsDone, challengesDone, phase, quizIndex, quizAnswers, quizOrder, bestScore, capstonesDone, stepQuizAnswers])
 
   // On step change: scroll to top, reset gate
   useEffect(() => {
@@ -192,12 +128,41 @@ export default function App() {
   function handleNext() {
     go(() => {
       if (isLastStep) {
+        const alreadyDone = modulesDone.has(moduleIndex)
         setModulesDone(prev => new Set(prev).add(moduleIndex))
-        if (!isLastMod) { setModuleIndex(n => n + 1); setStepIndex(0) }
+        if (!alreadyDone) {
+          // First completion — show practice project
+          setPhase('project')
+        } else if (!isLastMod) {
+          // Re-visiting a completed module — skip project, advance
+          setModuleIndex(n => n + 1)
+          setStepIndex(0)
+        }
+        // alreadyDone && isLastMod: isFinished=true so "Begin Assessment" shows — nothing to do
       } else {
         setStepIndex(n => n + 1)
       }
     })
+  }
+
+  function handleProjectComplete() {
+    setProjectsDone(prev => new Set(prev).add(moduleIndex))
+    setPhase('challenge')
+  }
+
+  function handleProjectSkip() {
+    setPhase('challenge')
+  }
+
+  function handleChallengeComplete() {
+    setChallengesDone(prev => new Set(prev).add(moduleIndex))
+    if (!isLastMod) { setModuleIndex(n => n + 1); setStepIndex(0); setPhase('course') }
+    else { setPhase('complete') }
+  }
+
+  function handleChallengeSkip() {
+    if (!isLastMod) { setModuleIndex(n => n + 1); setStepIndex(0); setPhase('course') }
+    else { setPhase('complete') }
   }
 
   function handlePrev() {
@@ -221,7 +186,18 @@ export default function App() {
 
   // ─── Assessment handlers ──────────────────────────────────────────────────
 
+  function shuffle(arr) {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
+
   function handleBeginAssessment() {
+    const order = shuffle(QUIZ_QUESTIONS.map((_, i) => i))
+    setQuizOrder(order)
     setPhase('quiz')
     setQuizIndex(0)
     setQuizAnswers({})
@@ -232,9 +208,16 @@ export default function App() {
   }
 
   function handleQuizNext() {
-    const total = 10  // QUIZ_QUESTIONS.length — avoids import at top level
-    if (quizIndex < total - 1) setQuizIndex(n => n + 1)
-    else setPhase('results')
+    const total = quizOrder.length > 0 ? quizOrder.length : QUIZ_QUESTIONS.length
+    if (quizIndex < total - 1) {
+      setQuizIndex(n => n + 1)
+    } else {
+      const order = quizOrder.length > 0 ? quizOrder : QUIZ_QUESTIONS.map((_, i) => i)
+      const count = order.reduce((n, qIdx, i) => quizAnswers[i] === QUIZ_QUESTIONS[qIdx].correct ? n + 1 : n, 0)
+      const pct   = Math.round((count / order.length) * 100)
+      setBestScore(prev => Math.max(prev, pct))
+      setPhase('results')
+    }
   }
 
   function handleQuizBack() {
@@ -244,12 +227,21 @@ export default function App() {
   function handleReview() { setPhase('review') }
   function handleStay()   { setPhase('results') }
   function handleBackToResults() { setPhase('results') }
+  function handleCapstone() { setPhase('capstone') }
+  function handleCapstoneComplete(id) { setCapstonesDone(prev => new Set(prev).add(id)) }
+  function handleCapstoneExit() { setPhase('results') }
+  function handleCompletionReviewAnswers() { setPhase('review') }
+
+  function handleStepQuizAnswer(mi, si, selected) {
+    setStepQuizAnswers(prev => ({ ...prev, [`${mi}-${si}`]: selected }))
+  }
 
   function handleReset() {
     localStorage.removeItem(STORAGE_KEY)
     setModuleIndex(0); setStepIndex(0)
-    setModulesDone(new Set())
-    setPhase('course'); setQuizIndex(0); setQuizAnswers({})
+    setModulesDone(new Set()); setProjectsDone(new Set()); setChallengesDone(new Set())
+    setPhase('course'); setQuizIndex(0); setQuizAnswers({}); setQuizOrder([]); setBestScore(0)
+    setCapstonesDone(new Set()); setStepQuizAnswers({})
   }
 
   // Progress
@@ -259,8 +251,26 @@ export default function App() {
     if (mi === moduleIndex)  return sum + stepIndex
     return sum
   }, 0)
-  const progressPct = Math.round((completedCount / TOTAL_STEPS) * 100)
-  const nextLabel   = isLastStep ? (isLastMod ? 'Finish' : 'Next Module') : 'Next Step'
+  const progressPct  = Math.round((completedCount / TOTAL_STEPS) * 100)
+  const nextLabel    = isLastStep ? 'Complete Module' : 'Next Step'
+  const skillOverall = calcSkillOverall(modulesDone, projectsDone, challengesDone, bestScore)
+
+  // ─── Score tracking ───────────────────────────────────────────────────────
+  const INLINE_TOTAL = SECTIONS.reduce((n, s) => n + s.steps.filter(st => st.quiz).length, 0)
+  const inlineCorrect = Object.entries(stepQuizAnswers).filter(([key, val]) => {
+    const [mi, si] = key.split('-').map(Number)
+    return val === SECTIONS[mi]?.steps[si]?.quiz?.correct
+  }).length
+  const inlinePct  = INLINE_TOTAL > 0 ? Math.round((inlineCorrect / INLINE_TOTAL) * 100) : 0
+  const totalScore = bestScore > 0 ? Math.round((inlinePct + bestScore) / 2) : inlinePct
+
+  function getTier(s) {
+    if (s >= 90) return { label: 'Elite',               color: '#fbbf24' }
+    if (s >= 75) return { label: 'Strong',              color: '#4ade80' }
+    if (s >= 50) return { label: 'Needs Work',          color: '#38bdf8' }
+    return              { label: 'Restart Recommended', color: '#f87171' }
+  }
+  const tier = getTier(totalScore)
 
   // ─── Shared full-screen background (used by quiz / results / review) ────────
   const FullGlows = () => (
@@ -282,23 +292,74 @@ export default function App() {
     </>
   )
 
+  if (phase === 'complete') return (
+    <><Starfield /><FullGlows />
+      <Completion
+        bestScore={bestScore}
+        quizAnswers={quizAnswers}
+        quizOrder={quizOrder}
+        skillOverall={skillOverall}
+        totalScore={totalScore}
+        modulesDone={modulesDone}
+        projectsDone={projectsDone}
+        challengesDone={challengesDone}
+        totalModules={SECTIONS.length}
+        onRestart={handleReset}
+        onBeginAssessment={handleBeginAssessment}
+        onReviewAnswers={handleCompletionReviewAnswers}
+      />
+    </>
+  )
+
+  if (phase === 'capstone') return (
+    <><Starfield /><FullGlows />
+      <Capstone
+        capstonesDone={capstonesDone}
+        onComplete={handleCapstoneComplete}
+        onExit={handleCapstoneExit}
+      />
+    </>
+  )
+
+  if (phase === 'challenge') return (
+    <><Starfield /><FullGlows />
+      <Challenge
+        moduleIndex={moduleIndex}
+        challengesDone={challengesDone}
+        onComplete={handleChallengeComplete}
+        onSkip={handleChallengeSkip}
+      />
+    </>
+  )
+
+  if (phase === 'project') return (
+    <><Starfield /><FullGlows />
+      <Project
+        moduleIndex={moduleIndex}
+        projectsDone={projectsDone}
+        onComplete={handleProjectComplete}
+        onSkip={handleProjectSkip}
+      />
+    </>
+  )
+
   if (phase === 'quiz') return (
     <><Starfield /><FullGlows />
-      <Quiz quizIndex={quizIndex} quizAnswers={quizAnswers}
+      <Quiz quizIndex={quizIndex} quizAnswers={quizAnswers} quizOrder={quizOrder}
         onAnswer={handleAnswer} onNext={handleQuizNext} onBack={handleQuizBack} />
     </>
   )
 
   if (phase === 'results') return (
     <><Starfield /><FullGlows />
-      <Results quizAnswers={quizAnswers}
-        onReview={handleReview} onRestart={handleReset} onStay={handleStay} />
+      <Results quizAnswers={quizAnswers} quizOrder={quizOrder}
+        onReview={handleReview} onRestart={handleReset} onStay={handleStay} onCapstone={handleCapstone} />
     </>
   )
 
   if (phase === 'review') return (
     <><Starfield /><FullGlows />
-      <Review quizAnswers={quizAnswers} onRestart={handleReset} onBack={handleBackToResults} />
+      <Review quizAnswers={quizAnswers} quizOrder={quizOrder} onRestart={handleReset} onBack={handleBackToResults} />
     </>
   )
 
@@ -504,36 +565,79 @@ export default function App() {
             })}
           </nav>
 
-          {/* Overall progress + reset */}
-          <div style={{ padding: '0 14px 18px' }}>
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Overall</span>
-                <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.30)' }}>
-                  {progressPct}%
-                </span>
-              </div>
-              <div style={{
-                height: 3, borderRadius: 9999,
-                background: C.trackEmpty, overflow: 'hidden',
+          {/* Capstone entry */}
+          <div style={{ padding: '8px 12px 0' }}>
+            <p style={{
+              fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+              marginBottom: 6, paddingLeft: 10,
+            }}>
+              Capstone
+            </p>
+            <button
+              onClick={() => { if (isMobile) setSidebarOpen(false); setPhase('capstone') }}
+              disabled={modulesDone.size < SECTIONS.length}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                padding: isMobile ? '11px 10px' : '9px 10px',
+                borderRadius: 9, marginBottom: 2,
+                border: phase === 'capstone' ? '1px solid rgba(245,158,11,0.35)' : '1px solid transparent',
+                background: phase === 'capstone' ? 'rgba(245,158,11,0.10)' : 'transparent',
+                color: modulesDone.size < SECTIONS.length
+                  ? 'rgba(255,255,255,0.15)'
+                  : phase === 'capstone' ? '#fcd34d' : 'rgba(255,255,255,0.40)',
+                cursor: modulesDone.size < SECTIONS.length ? 'not-allowed' : 'pointer',
+                textAlign: 'left', fontSize: 13,
+                transition: 'background 0.2s ease, color 0.2s ease',
+              }}
+              onMouseEnter={e => { if (modulesDone.size >= SECTIONS.length && phase !== 'capstone') e.currentTarget.style.background = 'rgba(245,158,11,0.06)' }}
+              onMouseLeave={e => { if (phase !== 'capstone') e.currentTarget.style.background = 'transparent' }}
+            >
+              <span style={{
+                width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10,
+                border: modulesDone.size < SECTIONS.length
+                  ? '1px solid rgba(255,255,255,0.10)'
+                  : '1px solid rgba(245,158,11,0.45)',
+                background: modulesDone.size < SECTIONS.length ? 'transparent' : 'rgba(245,158,11,0.12)',
+                color: modulesDone.size < SECTIONS.length ? 'rgba(255,255,255,0.15)' : '#f59e0b',
               }}>
-                <div style={{
-                  height: '100%', borderRadius: 9999,
-                  background: 'rgba(124,58,237,0.7)',
-                  width: `${Math.max(progressPct, 0)}%`,
-                  transition: 'width 0.7s ease-out',
-                }} />
-              </div>
-            </div>
+                ★
+              </span>
+              <span style={{ flex: 1 }}>Final Projects</span>
+              {capstonesDone.size > 0 && (
+                <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(245,158,11,0.55)' }}>
+                  {capstonesDone.size}/3
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Skill progression + reset */}
+          <div style={{ padding: '14px 14px 0', borderTop: `1px solid ${C.sidebarBorder}` }}>
+            <p style={{
+              fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.18)',
+              textTransform: 'uppercase', letterSpacing: '0.10em', marginBottom: 10,
+            }}>
+              Skill Progress
+            </p>
+            <SkillDashboard
+              compact
+              modulesDone={modulesDone}
+              projectsDone={projectsDone}
+              challengesDone={challengesDone}
+              bestScore={bestScore}
+            />
             <button
               onClick={handleReset}
               style={{
-                width: '100%', fontSize: 11, color: 'rgba(255,255,255,0.18)',
+                width: '100%', fontSize: 10, color: 'rgba(255,255,255,0.16)',
                 background: 'none', border: 'none', cursor: 'pointer',
-                padding: '4px 0', textAlign: 'center', transition: 'color 0.15s',
+                padding: '12px 0 14px', textAlign: 'center', transition: 'color 0.15s',
               }}
-              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.40)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.18)'}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.38)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.16)'}
             >
               Reset progress
             </button>
@@ -577,19 +681,40 @@ export default function App() {
                   Step {stepIndex + 1}/{section.steps.length}
                 </span>
               </div>
-              <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>
-                {progressPct}%
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: tier.color, boxShadow: `0 0 5px ${tier.color}99` }} />
+                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: tier.color, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                    {tier.label}
+                  </span>
+                </div>
+                <span style={{ color: 'rgba(255,255,255,0.10)' }}>·</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.32)', fontWeight: 500 }}>
+                  {totalScore}%
+                </span>
+              </div>
             </div>
 
-            {/* Global smooth bar */}
-            <div style={{ height: 1, borderRadius: 9999, background: C.trackEmpty, overflow: 'hidden' }}>
+            {/* Course progress bar */}
+            <div style={{ height: 1, borderRadius: 9999, background: C.trackEmpty, overflow: 'hidden', marginBottom: 5 }}>
               <div style={{
                 height: '100%', borderRadius: 9999,
                 background: 'linear-gradient(90deg, #6d28d9, #a78bfa)',
                 width: `${Math.max(progressPct, 1)}%`,
                 transition: 'width 0.7s ease-out',
                 boxShadow: '0 0 8px rgba(139,92,246,0.5)',
+              }} />
+            </div>
+
+            {/* Score bar */}
+            <div style={{ height: 2, borderRadius: 9999, background: C.trackEmpty, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', borderRadius: 9999,
+                background: tier.color,
+                width: `${Math.max(totalScore, 1)}%`,
+                transition: 'width 0.8s ease-out',
+                boxShadow: `0 0 6px ${tier.color}88`,
+                opacity: 0.70,
               }} />
             </div>
 
@@ -622,6 +747,16 @@ export default function App() {
               transition: 'opacity 0.22s ease-out, transform 0.22s ease-out',
             }}>
 
+              {/* Skill dashboard — full view when all modules complete */}
+              {isFinished && (
+                <SkillDashboard
+                  modulesDone={modulesDone}
+                  projectsDone={projectsDone}
+                  challengesDone={challengesDone}
+                  bestScore={bestScore}
+                />
+              )}
+
               {/* Breadcrumb */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 20 : 28 }}>
                 <span style={{
@@ -638,49 +773,16 @@ export default function App() {
                 </span>
               </div>
 
-              {/* Step card */}
-              <div style={{
-                borderRadius: 14,
-                background:   'linear-gradient(150deg, rgba(22,16,42,0.91) 0%, rgba(11,8,25,0.96) 100%)',
-                border:       `1px solid ${C.cardBorder}`,
-                padding:      isMobile ? '20px 16px' : '24px',
-                backdropFilter: 'blur(20px) saturate(1.2)',
-                boxShadow: [
-                  '0 4px 32px rgba(0,0,0,0.42)',
-                  '0 0 80px rgba(76,36,160,0.10)',
-                  'inset 0 1px 0 rgba(255,255,255,0.08)',
-                  'inset 0 -1px 0 rgba(0,0,0,0.18)',
-                ].join(', '),
-              }}>
-                <div style={{ display: 'flex', gap: isMobile ? 12 : 16, alignItems: 'flex-start' }}>
-                  {/* Step number */}
-                  <div style={{
-                    width: isMobile ? 30 : 36, height: isMobile ? 30 : 36,
-                    borderRadius: '50%', flexShrink: 0,
-                    border: '1px solid rgba(139,92,246,0.35)',
-                    background: 'rgba(124,58,237,0.10)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginTop: 2,
-                  }}>
-                    <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#a78bfa' }}>
-                      {stepIndex + 1}
-                    </span>
-                  </div>
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h2 style={{
-                      fontSize: isMobile ? 16 : 18, fontWeight: 600, color: '#ede9fe',
-                      letterSpacing: '-0.3px', lineHeight: 1.35, marginBottom: 10,
-                    }}>
-                      {step.title}
-                    </h2>
-                    <p style={{ fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7 }}>
-                      {step.description}
-                    </p>
-                    {step.hasImage && <ImagePlaceholder label={step.title} />}
-                  </div>
-                </div>
-              </div>
+              {/* Step card + tip / quiz / task */}
+              <StepContent
+                key={`${moduleIndex}-${stepIndex}`}
+                step={step}
+                stepIndex={stepIndex}
+                moduleIndex={moduleIndex}
+                isMobile={isMobile}
+                quizAnswer={stepQuizAnswers[`${moduleIndex}-${stepIndex}`] ?? null}
+                onQuizAnswer={(sel) => handleStepQuizAnswer(moduleIndex, stepIndex, sel)}
+              />
 
               {/* Scroll hint */}
               {!canProceed && (

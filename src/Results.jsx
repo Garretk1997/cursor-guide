@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { QUIZ_QUESTIONS } from './quizData'
 import { useMobile } from './useMobile'
 
-export default function Results({ quizAnswers, onReview, onRestart, onStay }) {
+export default function Results({ quizAnswers, onReview, onRestart, onStay, onCapstone, quizOrder }) {
   const isMobile = useMobile()
-  const score  = QUIZ_QUESTIONS.reduce((n, q, i) => quizAnswers[i] === q.correct ? n + 1 : n, 0)
-  const pct    = Math.round((score / QUIZ_QUESTIONS.length) * 100)
+  const order  = quizOrder && quizOrder.length > 0 ? quizOrder : QUIZ_QUESTIONS.map((_, i) => i)
+  const score  = order.reduce((n, qIdx, i) => quizAnswers[i] === QUIZ_QUESTIONS[qIdx].correct ? n + 1 : n, 0)
+  const pct    = Math.round((score / order.length) * 100)
   const passed = pct >= 90
 
   const [revealed,    setRevealed]    = useState(false)
@@ -80,7 +81,7 @@ export default function Results({ quizAnswers, onReview, onRestart, onStay }) {
             fontSize: 12, fontFamily: 'monospace',
             color: 'rgba(255,255,255,0.32)', marginTop: 6,
           }}>
-            {score} / {QUIZ_QUESTIONS.length}
+            {score} / {order.length}
           </span>
         </div>
 
@@ -106,6 +107,29 @@ export default function Results({ quizAnswers, onReview, onRestart, onStay }) {
               : `You scored ${pct}% — just below the 90% passing threshold. Reviewing the answers may help reinforce the concepts.`
             }
           </p>
+
+          {/* ── Capstone CTA (passed only) ── */}
+          {passed && (
+            <button
+              onClick={onCapstone}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.boxShadow = '0 0 36px rgba(245,158,11,0.40)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 0 22px rgba(245,158,11,0.25)' }}
+              style={{
+                display: 'block', width: isMobile ? '100%' : 'auto',
+                margin: '0 auto 24px',
+                padding: isMobile ? '15px 24px' : '11px 28px',
+                fontSize: isMobile ? 15 : 14, fontWeight: 600, borderRadius: 10,
+                border: '1px solid rgba(245,158,11,0.35)',
+                background: 'rgba(245,158,11,0.10)',
+                color: '#fcd34d', cursor: 'pointer',
+                transition: 'transform 0.15s ease, box-shadow 0.2s ease',
+                boxShadow: '0 0 22px rgba(245,158,11,0.25)',
+                minHeight: isMobile ? 52 : 'auto',
+              }}
+            >
+              ★ Capstone Projects →
+            </button>
+          )}
 
           {/* ── Buttons ── */}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
