@@ -23,7 +23,8 @@ function ListView({ capstonesDone, onSelect, onExit, isMobile }) {
   return (
     <div style={{
       maxWidth: 700, margin: '0 auto',
-      padding: isMobile ? '24px 16px 80px' : '40px 32px 80px',
+      padding: isMobile ? '24px 16px 0' : '40px 32px 0',
+      paddingBottom: `calc(80px + env(safe-area-inset-bottom, 0px))`,
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(10px)',
       transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
@@ -201,7 +202,8 @@ function DetailView({ project, done, onComplete, onBack, isMobile }) {
   return (
     <div style={{
       maxWidth: 680, margin: '0 auto',
-      padding: isMobile ? '24px 16px 100px' : '40px 32px 100px',
+      padding: isMobile ? '24px 16px 0' : '40px 32px 0',
+      paddingBottom: `calc(100px + env(safe-area-inset-bottom, 0px))`,
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(10px)',
       transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
@@ -463,7 +465,8 @@ function GuidedDetailView({ project, done, onComplete, onBack, isMobile }) {
   return (
     <div style={{
       maxWidth: 680, margin: '0 auto',
-      padding: isMobile ? '24px 16px 100px' : '40px 32px 100px',
+      padding: isMobile ? '24px 16px 0' : '40px 32px 0',
+      paddingBottom: `calc(100px + env(safe-area-inset-bottom, 0px))`,
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(10px)',
       transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',

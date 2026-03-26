@@ -238,7 +238,14 @@ export default function FinalExam({ questions, examIndex, examAnswers, onAnswer,
       </main>
 
       {/* ── Footer ── */}
-      <div style={{ flexShrink: 0, padding: isMobile ? '12px 16px' : '14px 32px', borderTop: `1px solid ${BORDER}`, background: GLASS, backdropFilter: 'blur(10px)' }}>
+      <div style={{
+        flexShrink: 0,
+        padding: isMobile ? '12px 16px' : '14px 32px',
+        paddingBottom: `calc(${isMobile ? 12 : 14}px + env(safe-area-inset-bottom, 0px))`,
+        borderTop: `1px solid ${BORDER}`,
+        background: GLASS,
+        backdropFilter: 'blur(10px)',
+      }}>
         <div style={{ maxWidth: 620, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button
             onClick={retreat}

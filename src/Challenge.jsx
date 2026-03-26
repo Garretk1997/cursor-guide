@@ -102,7 +102,8 @@ export default function Challenge({ moduleIndex, challengesDone, onComplete, onS
       <main style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{
           maxWidth: 640, margin: '0 auto',
-          padding: isMobile ? '24px 16px 80px' : '36px 32px 80px',
+          padding: isMobile ? '24px 16px 0' : '36px 32px 0',
+          paddingBottom: `calc(80px + env(safe-area-inset-bottom, 0px))`,
           opacity:   visible ? 1 : 0,
           transform: visible ? 'translateY(0)' : 'translateY(10px)',
           transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
@@ -387,6 +388,7 @@ export default function Challenge({ moduleIndex, challengesDone, onComplete, onS
       <div style={{
         flexShrink: 0,
         padding: isMobile ? '12px 16px' : '14px 32px',
+        paddingBottom: `calc(${isMobile ? 12 : 14}px + env(safe-area-inset-bottom, 0px))`,
         borderTop: `1px solid ${BORDER}`,
         background: GLASS_H, backdropFilter: 'blur(10px)',
       }}>

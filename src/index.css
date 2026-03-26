@@ -9,7 +9,13 @@ html, body, #root {
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   color-scheme: dark;
-  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+/* Long URLs / monospace content — avoid horizontal scroll at ~375px */
+body {
+  overflow-wrap: anywhere;
 }
 
 ::-webkit-scrollbar { width: 4px; }

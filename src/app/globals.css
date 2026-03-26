@@ -1,0 +1,57 @@
+/* CTA primitives + global press feedback (inline hover transforms need !important on :active). */
+
+/* Belt-and-suspenders: contain stray wide descendants on narrow phones */
+#root {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+.btn-light,
+.btn-ghost {
+  transition:
+    transform 100ms ease,
+    background-color 100ms ease,
+    border-color 100ms ease,
+    box-shadow 100ms ease,
+    filter 100ms ease,
+    opacity 100ms ease,
+    color 100ms ease;
+}
+
+.btn-light:active:not(:disabled) {
+  transform: scale(0.98);
+  filter: brightness(0.94);
+}
+
+.btn-ghost:active:not(:disabled) {
+  transform: scale(0.98);
+  opacity: 0.88;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Snappy press where components don’t set their own `transition` inline */
+button:not(:disabled) {
+  transition: transform 100ms ease;
+}
+
+/* All actionable buttons — primary/secondary CTAs across the app */
+button:not(:disabled):active {
+  transform: scale(0.98) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled) {
+    transition: none;
+  }
+
+  .btn-light:active:not(:disabled),
+  .btn-ghost:active:not(:disabled),
+  button:not(:disabled):active {
+    transform: none !important;
+    filter: none;
+    opacity: 1;
+  }
+}

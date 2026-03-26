@@ -272,7 +272,9 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack,
 
       {/* ── Footer ── */}
       <div style={{
-        flexShrink: 0, padding: isMobile ? '12px 16px' : '14px 32px',
+        flexShrink: 0,
+        padding: isMobile ? '12px 16px' : '14px 32px',
+        paddingBottom: `calc(${isMobile ? 12 : 14}px + env(safe-area-inset-bottom, 0px))`,
         borderTop: `1px solid ${BORDER}`,
         background: GLASS_H, backdropFilter: 'blur(10px)',
       }}>

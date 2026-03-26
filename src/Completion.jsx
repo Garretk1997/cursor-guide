@@ -110,7 +110,9 @@ export default function Completion({
       position: 'relative', zIndex: 2,
       height: '100vh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      color: '#f0eeff', padding: isMobile ? '24px 20px' : '40px 32px',
+      color: '#f0eeff',
+      padding: isMobile ? '24px 20px' : '40px 32px',
+      paddingBottom: `calc(${isMobile ? 24 : 40}px + env(safe-area-inset-bottom, 0px))`,
       overflowY: 'auto',
     }}>
       <div style={{ maxWidth: 520, width: '100%', textAlign: 'center' }}>

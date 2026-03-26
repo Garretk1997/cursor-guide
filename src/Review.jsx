@@ -54,7 +54,10 @@ export default function Review({ quizAnswers, onRestart, onBack, quizOrder }) {
       {/* ── Scrollable review list ── */}
       <main style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{
-          maxWidth: 640, margin: '0 auto', padding: isMobile ? '20px 16px 64px' : '28px 32px 72px',
+          maxWidth: 640,
+          margin: '0 auto',
+          padding: isMobile ? '20px 16px 0' : '28px 32px 0',
+          paddingBottom: `calc(${isMobile ? 64 : 72}px + env(safe-area-inset-bottom, 0px))`,
           opacity:   visible ? 1 : 0,
           transform: visible ? 'translateY(0)' : 'translateY(10px)',
           transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
@@ -141,7 +144,9 @@ export default function Review({ quizAnswers, onRestart, onBack, quizOrder }) {
 
       {/* ── Footer ── */}
       <div style={{
-        flexShrink: 0, padding: isMobile ? '12px 16px' : '14px 32px',
+        flexShrink: 0,
+        padding: isMobile ? '12px 16px' : '14px 32px',
+        paddingBottom: `calc(${isMobile ? 12 : 14}px + env(safe-area-inset-bottom, 0px))`,
         borderTop: `1px solid ${BORDER}`,
         background: GLASS_H, backdropFilter: 'blur(10px)',
       }}>

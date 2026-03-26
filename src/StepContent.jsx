@@ -211,6 +211,7 @@ function TaskCard({ task, isMobile }) {
             fontSize: isMobile ? 13 : 12.5,
             color: done ? 'rgba(255,255,255,0.38)' : 'rgba(255,255,255,0.50)',
             lineHeight: 1.65, margin: 0,
+            overflowWrap: 'anywhere',
             textDecoration: done ? 'line-through' : 'none',
             transition: 'color 0.2s',
           }}>
@@ -279,10 +280,14 @@ export default function StepContent({ step, stepIndex, isMobile, quizAnswer, onQ
             <h2 style={{
               fontSize: isMobile ? 16 : 18, fontWeight: 600, color: '#ede9fe',
               letterSpacing: '-0.3px', lineHeight: 1.35, marginBottom: 10,
+              overflowWrap: 'anywhere',
             }}>
               {step.title}
             </h2>
-            <p style={{ fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
+            <p style={{
+              fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, whiteSpace: 'pre-line',
+              overflowWrap: 'anywhere',
+            }}>
               {step.description}
             </p>
             {step.hasImage && <ImagePlaceholder label={step.title} />}

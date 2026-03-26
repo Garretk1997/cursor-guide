@@ -783,7 +783,7 @@ export default function App() {
         </aside>
 
         {/* ══ MAIN PANEL ═══════════════════════════════════════════════════ */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
           {/* Progress header */}
           <div style={{
@@ -793,8 +793,14 @@ export default function App() {
             backdropFilter:'blur(10px)',
             flexShrink:    0,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: 'monospace', fontSize: 12 }}>
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center',
+              flexWrap: isMobile ? 'wrap' : 'nowrap', gap: isMobile ? 8 : 0, rowGap: 8,
+            }}>
+              <div style={{
+                display: 'flex', gap: 8, alignItems: 'center', fontFamily: 'monospace', fontSize: 12,
+                flex: isMobile ? '1 1 auto' : 'none', minWidth: 0, flexWrap: 'wrap',
+              }}>
                 {/* Hamburger — mobile only */}
                 {isMobile && (
                   <button
@@ -819,7 +825,10 @@ export default function App() {
                   Step {stepIndex + 1}/{section.steps.length}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                flexShrink: 0, marginLeft: isMobile ? 'auto' : undefined,
+              }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <div style={{ width: 5, height: 5, borderRadius: '50%', background: tier.color, boxShadow: `0 0 5px ${tier.color}99` }} />
                   <span style={{ fontSize: 10, fontFamily: 'monospace', color: tier.color, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -946,6 +955,7 @@ export default function App() {
           <div style={{
             flexShrink:    0,
             padding:       isMobile ? '12px 16px' : '14px 32px',
+            paddingBottom: `calc(${isMobile ? 12 : 14}px + env(safe-area-inset-bottom, 0px))`,
             borderTop:     `1px solid ${C.sidebarBorder}`,
             background:    C.footer,
             backdropFilter:'blur(10px)',

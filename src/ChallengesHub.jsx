@@ -358,7 +358,8 @@ export default function ChallengesHub({ challengesDone, onComplete, onBack }) {
       <main style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{
           maxWidth: 680, margin: '0 auto',
-          padding: isMobile ? '24px 16px 48px' : '36px 32px 48px',
+          padding: isMobile ? '24px 16px 0' : '36px 32px 0',
+          paddingBottom: `calc(48px + env(safe-area-inset-bottom, 0px))`,
         }}>
 
           {/* Intro text */}
