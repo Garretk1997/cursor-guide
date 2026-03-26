@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { QUIZ_QUESTIONS } from './quizData'
+import { useMobile } from './useMobile'
 
 const LETTERS  = ['A', 'B', 'C', 'D']
 const BORDER   = 'rgba(255,255,255,0.055)'
 const GLASS_H  = 'rgba(5,4,14,0.93)'
 
 export default function Review({ quizAnswers, onRestart, onBack }) {
+  const isMobile = useMobile()
   const score  = QUIZ_QUESTIONS.reduce((n, q, i) => quizAnswers[i] === q.correct ? n + 1 : n, 0)
   const pct    = Math.round((score / QUIZ_QUESTIONS.length) * 100)
   const passed = pct >= 90
@@ -25,7 +27,7 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
 
       {/* ── Header ── */}
       <div style={{
-        padding: '14px 32px',
+        padding: isMobile ? '12px 16px' : '14px 32px',
         borderBottom: `1px solid ${BORDER}`,
         background: GLASS_H, backdropFilter: 'blur(10px)',
         flexShrink: 0,
@@ -51,7 +53,7 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
       {/* ── Scrollable review list ── */}
       <main style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{
-          maxWidth: 640, margin: '0 auto', padding: '28px 32px 72px',
+          maxWidth: 640, margin: '0 auto', padding: isMobile ? '20px 16px 64px' : '28px 32px 72px',
           opacity:   visible ? 1 : 0,
           transform: visible ? 'translateY(0)' : 'translateY(10px)',
           transition: 'opacity 0.30s ease-out, transform 0.30s ease-out',
@@ -130,7 +132,7 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
 
       {/* ── Footer ── */}
       <div style={{
-        flexShrink: 0, padding: '14px 32px',
+        flexShrink: 0, padding: isMobile ? '12px 16px' : '14px 32px',
         borderTop: `1px solid ${BORDER}`,
         background: GLASS_H, backdropFilter: 'blur(10px)',
       }}>
@@ -143,10 +145,12 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
             onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.70)' }}
             onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.38)' }}
             style={{
-              padding: '7px 14px', fontSize: 13, borderRadius: 8,
+              padding: isMobile ? '11px 14px' : '7px 14px',
+              fontSize: isMobile ? 14 : 13, borderRadius: 8,
               color: 'rgba(255,255,255,0.38)',
               background: 'none', border: 'none', cursor: 'pointer',
               transition: 'color 0.15s',
+              minHeight: isMobile ? 44 : 'auto',
             }}
           >
             ← Back to Results
@@ -157,12 +161,14 @@ export default function Review({ quizAnswers, onRestart, onBack }) {
             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)' }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
             style={{
-              padding: '7px 18px', fontSize: 13, fontWeight: 500, borderRadius: 8,
+              padding: isMobile ? '11px 20px' : '7px 18px',
+              fontSize: isMobile ? 14 : 13, fontWeight: 500, borderRadius: 8,
               border: 'none', cursor: 'pointer',
               background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
               color: '#fff',
               boxShadow: '0 0 20px rgba(124,58,237,0.25)',
               transition: 'transform 0.15s ease',
+              minHeight: isMobile ? 44 : 'auto',
             }}
           >
             Restart Course

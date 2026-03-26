@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useMobile } from './useMobile'
 import Starfield from './Starfield'
 import Quiz    from './Quiz'
 import Results from './Results'
@@ -69,16 +70,16 @@ const STORAGE_KEY = 'cursor-guide-progress'
 
 // ─── Colours (semi-transparent so stars show through) ────────────────────────
 const C = {
-  sidebar:        'rgba(8, 6, 18, 0.90)',
-  sidebarBorder:  'rgba(255,255,255,0.055)',
-  header:         'rgba(5, 4, 14, 0.93)',
-  footer:         'rgba(5, 4, 14, 0.93)',
-  card:           'rgba(16, 12, 30, 0.94)',
-  cardBorder:     'rgba(255,255,255,0.065)',
-  activeItem:     'rgba(139,92,246,0.12)',
+  sidebar:         'rgba(8, 6, 18, 0.90)',
+  sidebarBorder:   'rgba(255,255,255,0.055)',
+  header:          'rgba(5, 4, 14, 0.93)',
+  footer:          'rgba(5, 4, 14, 0.93)',
+  card:            'rgba(16, 12, 30, 0.94)',
+  cardBorder:      'rgba(255,255,255,0.065)',
+  activeItem:      'rgba(139,92,246,0.12)',
   activeItemBorder:'rgba(139,92,246,0.22)',
-  trackEmpty:     'rgba(255,255,255,0.06)',
-  hoverItem:      'rgba(255,255,255,0.04)',
+  trackEmpty:      'rgba(255,255,255,0.06)',
+  hoverItem:       'rgba(255,255,255,0.04)',
 }
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
@@ -140,6 +141,8 @@ export default function App() {
   const [quizAnswers, setQuizAnswers] = useState(saved?.quizAnswers ?? {})
   const [canProceed,  setCanProceed]  = useState(false)
   const [visible,     setVisible]     = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const isMobile = useMobile()
   const contentRef = useRef(null)
 
   const section    = SECTIONS[moduleIndex]
@@ -169,6 +172,11 @@ export default function App() {
     }, 200)
     return () => clearTimeout(t)
   }, [moduleIndex, stepIndex])
+
+  // Close sidebar when switching to desktop
+  useEffect(() => {
+    if (!isMobile) setSidebarOpen(false)
+  }, [isMobile])
 
   function handleScroll() {
     const el = contentRef.current
@@ -205,6 +213,7 @@ export default function App() {
   }
 
   function handleModuleSelect(i) {
+    if (isMobile) setSidebarOpen(false)
     if (i === moduleIndex) return
     if (i > moduleIndex && !modulesDone.has(i)) return
     go(() => { setModuleIndex(i); setStepIndex(0) })
@@ -300,11 +309,11 @@ export default function App() {
       {/* ── Starfield canvas (z:0, fixed, behind everything) ── */}
       <Starfield />
 
-      {/* ── Layered background glows ── */}
+      {/* ── Layered background glows — full-width on mobile (no sidebar offset) ── */}
       <div style={{
         position:      'fixed',
         top:           0,
-        left:          240,
+        left:          isMobile ? 0 : 240,
         right:         0,
         bottom:        0,
         background: [
@@ -316,11 +325,11 @@ export default function App() {
         zIndex:        1,
       }} />
 
-      {/* ── Soft blur veil — gently diffuses stars behind the content panel ── */}
+      {/* ── Soft blur veil ── */}
       <div style={{
         position:      'fixed',
         top:           0,
-        left:          240,
+        left:          isMobile ? 0 : 240,
         right:         0,
         bottom:        0,
         backdropFilter:'blur(0.6px)',
@@ -328,6 +337,18 @@ export default function App() {
         pointerEvents: 'none',
         zIndex:        1,
       }} />
+
+      {/* ── Mobile backdrop (closes sidebar on outside tap) ── */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.55)',
+            zIndex: 49,
+          }}
+        />
+      )}
 
       {/* ── App shell (z:2, above canvas + glow) ── */}
       <div style={{
@@ -341,13 +362,19 @@ export default function App() {
 
         {/* ══ SIDEBAR ══════════════════════════════════════════════════════ */}
         <aside style={{
-          width:       240,
-          flexShrink:  0,
-          display:     'flex',
-          flexDirection:'column',
-          background:  C.sidebar,
-          borderRight: `1px solid ${C.sidebarBorder}`,
-          backdropFilter: 'blur(5px)',
+          position:       isMobile ? 'fixed' : 'static',
+          width:          240,
+          height:         isMobile ? '100vh' : 'auto',
+          top:            isMobile ? 0 : 'auto',
+          left:           isMobile ? (sidebarOpen ? 0 : -245) : 'auto',
+          flexShrink:     0,
+          display:        'flex',
+          flexDirection:  'column',
+          background:     C.sidebar,
+          borderRight:    `1px solid ${C.sidebarBorder}`,
+          backdropFilter: 'blur(12px)',
+          zIndex:         isMobile ? 50 : 'auto',
+          transition:     isMobile ? 'left 0.28s cubic-bezier(0.4,0,0.2,1)' : 'none',
         }}>
 
           {/* Brand */}
@@ -361,7 +388,7 @@ export default function App() {
               }}>
                 <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>C</span>
               </div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#ede9fe', lineHeight: 1 }}>
                   Cursor Guide
                 </p>
@@ -369,6 +396,20 @@ export default function App() {
                   Developer Onboarding
                 </p>
               </div>
+              {/* Close button — mobile only */}
+              {isMobile && (
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'rgba(255,255,255,0.35)', padding: '6px 8px',
+                    fontSize: 16, lineHeight: 1, borderRadius: 6,
+                    flexShrink: 0,
+                  }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
 
@@ -397,7 +438,7 @@ export default function App() {
                     display:        'flex',
                     alignItems:     'center',
                     gap:            10,
-                    padding:        '9px 10px',
+                    padding:        isMobile ? '11px 10px' : '9px 10px',
                     borderRadius:   9,
                     marginBottom:   2,
                     border:         isActive ? `1px solid ${C.activeItemBorder}` : '1px solid transparent',
@@ -504,14 +545,30 @@ export default function App() {
 
           {/* Progress header */}
           <div style={{
-            padding:       '14px 32px',
+            padding:       isMobile ? '12px 16px' : '14px 32px',
             borderBottom:  `1px solid ${C.sidebarBorder}`,
             background:    C.header,
             backdropFilter:'blur(10px)',
             flexShrink:    0,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: 'monospace', fontSize: 12 }}>
+                {/* Hamburger — mobile only */}
+                {isMobile && (
+                  <button
+                    onClick={() => setSidebarOpen(o => !o)}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      padding: '5px 6px', marginRight: 4, borderRadius: 6,
+                      display: 'flex', flexDirection: 'column', gap: 4,
+                      color: 'rgba(255,255,255,0.50)',
+                    }}
+                  >
+                    <span style={{ display: 'block', width: 17, height: 1.5, background: 'currentColor', borderRadius: 9999 }} />
+                    <span style={{ display: 'block', width: 17, height: 1.5, background: 'currentColor', borderRadius: 9999 }} />
+                    <span style={{ display: 'block', width: 17, height: 1.5, background: 'currentColor', borderRadius: 9999 }} />
+                  </button>
+                )}
                 <span style={{ color: 'rgba(255,255,255,0.35)' }}>
                   Module {moduleIndex + 1}/{SECTIONS.length}
                 </span>
@@ -559,14 +616,14 @@ export default function App() {
             <div style={{
               maxWidth:   680,
               margin:     '0 auto',
-              padding:    '40px 32px',
+              padding:    isMobile ? '24px 16px' : '40px 32px',
               opacity:    visible ? 1 : 0,
               transform:  visible ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.984)',
               transition: 'opacity 0.22s ease-out, transform 0.22s ease-out',
             }}>
 
               {/* Breadcrumb */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 20 : 28 }}>
                 <span style={{
                   fontSize: 11, fontFamily: 'monospace', color: '#a78bfa',
                   background: 'rgba(124,58,237,0.10)',
@@ -586,7 +643,7 @@ export default function App() {
                 borderRadius: 14,
                 background:   'linear-gradient(150deg, rgba(22,16,42,0.91) 0%, rgba(11,8,25,0.96) 100%)',
                 border:       `1px solid ${C.cardBorder}`,
-                padding:      '24px',
+                padding:      isMobile ? '20px 16px' : '24px',
                 backdropFilter: 'blur(20px) saturate(1.2)',
                 boxShadow: [
                   '0 4px 32px rgba(0,0,0,0.42)',
@@ -595,28 +652,29 @@ export default function App() {
                   'inset 0 -1px 0 rgba(0,0,0,0.18)',
                 ].join(', '),
               }}>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', gap: isMobile ? 12 : 16, alignItems: 'flex-start' }}>
                   {/* Step number */}
                   <div style={{
-                    width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                    width: isMobile ? 30 : 36, height: isMobile ? 30 : 36,
+                    borderRadius: '50%', flexShrink: 0,
                     border: '1px solid rgba(139,92,246,0.35)',
                     background: 'rgba(124,58,237,0.10)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     marginTop: 2,
                   }}>
-                    <span style={{ fontSize: 13, fontFamily: 'monospace', color: '#a78bfa' }}>
+                    <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#a78bfa' }}>
                       {stepIndex + 1}
                     </span>
                   </div>
 
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <h2 style={{
-                      fontSize: 18, fontWeight: 600, color: '#ede9fe',
+                      fontSize: isMobile ? 16 : 18, fontWeight: 600, color: '#ede9fe',
                       letterSpacing: '-0.3px', lineHeight: 1.35, marginBottom: 10,
                     }}>
                       {step.title}
                     </h2>
-                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7 }}>
+                    <p style={{ fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7 }}>
                       {step.description}
                     </p>
                     {step.hasImage && <ImagePlaceholder label={step.title} />}
@@ -647,7 +705,7 @@ export default function App() {
           {/* Sticky footer nav */}
           <div style={{
             flexShrink:    0,
-            padding:       '14px 32px',
+            padding:       isMobile ? '12px 16px' : '14px 32px',
             borderTop:     `1px solid ${C.sidebarBorder}`,
             background:    C.footer,
             backdropFilter:'blur(10px)',
@@ -661,10 +719,12 @@ export default function App() {
                 disabled={isFirst}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '7px 14px', fontSize: 13, borderRadius: 8,
+                  padding: isMobile ? '11px 14px' : '7px 14px',
+                  fontSize: isMobile ? 14 : 13, borderRadius: 8,
                   color: isFirst ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.38)',
                   background: 'none', border: 'none', cursor: isFirst ? 'not-allowed' : 'pointer',
                   transition: 'color 0.15s',
+                  minHeight: isMobile ? 44 : 'auto',
                 }}
                 onMouseEnter={e => { if (!isFirst) e.currentTarget.style.color = 'rgba(255,255,255,0.65)' }}
                 onMouseLeave={e => { e.currentTarget.style.color = isFirst ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.38)' }}
@@ -673,12 +733,12 @@ export default function App() {
               </button>
 
               {/* Step dots */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 5 : 6 }}>
                 {section.steps.map((_, i) => (
                   <div key={i} style={{
                     borderRadius: 9999,
-                    width:      i === stepIndex ? 16 : 6,
-                    height:     6,
+                    width:      i === stepIndex ? (isMobile ? 12 : 16) : (isMobile ? 5 : 6),
+                    height:     isMobile ? 5 : 6,
                     background: i < stepIndex   ? 'rgba(124,58,237,0.5)'
                               : i === stepIndex ? '#7c3aed'
                                                 : 'rgba(255,255,255,0.10)',
@@ -693,12 +753,14 @@ export default function App() {
                   onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)' }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
                   style={{
-                    padding: '7px 18px', fontSize: 13, fontWeight: 500, borderRadius: 8,
+                    padding: isMobile ? '11px 16px' : '7px 18px',
+                    fontSize: isMobile ? 14 : 13, fontWeight: 500, borderRadius: 8,
                     border: '1px solid rgba(139,92,246,0.38)',
                     background: 'rgba(124,58,237,0.14)',
                     color: '#c4b5fd', cursor: 'pointer',
                     animation: 'next-pulse 2.6s ease-in-out infinite',
                     transition: 'transform 0.15s ease',
+                    minHeight: isMobile ? 44 : 'auto',
                   }}
                 >
                   Begin Assessment →
@@ -710,7 +772,8 @@ export default function App() {
                   onMouseEnter={e => { if (canProceed) e.currentTarget.style.transform = 'scale(1.04)' }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
                   style={{
-                    padding: '7px 18px', fontSize: 13, fontWeight: 500, borderRadius: 8,
+                    padding: isMobile ? '11px 18px' : '7px 18px',
+                    fontSize: isMobile ? 14 : 13, fontWeight: 500, borderRadius: 8,
                     border: 'none', cursor: canProceed ? 'pointer' : 'not-allowed',
                     transition: 'background 0.2s ease, color 0.2s ease, transform 0.15s ease',
                     background: canProceed
@@ -718,6 +781,7 @@ export default function App() {
                       : 'rgba(255,255,255,0.05)',
                     color: canProceed ? '#fff' : 'rgba(255,255,255,0.20)',
                     animation: canProceed ? 'next-pulse 2.6s ease-in-out infinite' : 'none',
+                    minHeight: isMobile ? 44 : 'auto',
                   }}
                 >
                   {nextLabel} →

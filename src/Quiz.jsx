@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { QUIZ_QUESTIONS } from './quizData'
+import { useMobile } from './useMobile'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -8,6 +9,7 @@ const GLASS_H = 'rgba(5,4,14,0.93)'
 
 export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack }) {
   const [visible, setVisible] = useState(false)
+  const isMobile = useMobile()
 
   // Fade in whenever the question changes
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
 
       {/* ── Header ── */}
       <div style={{
-        padding: '14px 32px',
+        padding: isMobile ? '12px 16px' : '14px 32px',
         borderBottom: `1px solid ${BORDER}`,
         background: GLASS_H,
         backdropFilter: 'blur(10px)',
@@ -90,7 +92,7 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
       {/* ── Question area ── */}
       <main style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        overflowY: 'auto', padding: '32px',
+        overflowY: 'auto', padding: isMobile ? '20px 16px' : '32px',
       }}>
         <div style={{
           maxWidth: 620, width: '100%',
@@ -123,11 +125,11 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
               'inset 0 1px 0 rgba(255,255,255,0.08)',
               'inset 0 -1px 0 rgba(0,0,0,0.18)',
             ].join(', '),
-            padding: '28px',
+            padding: isMobile ? '20px 16px' : '28px',
           }}>
             <h2 style={{
-              fontSize: 18, fontWeight: 600, color: '#ede9fe',
-              letterSpacing: '-0.3px', lineHeight: 1.5, marginBottom: 24,
+              fontSize: isMobile ? 16 : 18, fontWeight: 600, color: '#ede9fe',
+              letterSpacing: '-0.3px', lineHeight: 1.5, marginBottom: 20,
             }}>
               {q.question}
             </h2>
@@ -155,7 +157,8 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
                     }}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 14,
-                      padding: '13px 16px', borderRadius: 10,
+                      padding: isMobile ? '14px 14px' : '13px 16px', borderRadius: 10,
+                      minHeight: isMobile ? 52 : 'auto',
                       border: isSelected ? '1px solid rgba(139,92,246,0.50)' : '1px solid rgba(255,255,255,0.07)',
                       background: isSelected ? 'rgba(124,58,237,0.16)' : 'rgba(255,255,255,0.025)',
                       color: isSelected ? '#c4b5fd' : 'rgba(255,255,255,0.58)',
@@ -187,7 +190,7 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
 
       {/* ── Footer ── */}
       <div style={{
-        flexShrink: 0, padding: '14px 32px',
+        flexShrink: 0, padding: isMobile ? '12px 16px' : '14px 32px',
         borderTop: `1px solid ${BORDER}`,
         background: GLASS_H, backdropFilter: 'blur(10px)',
       }}>
@@ -201,11 +204,13 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
             onMouseEnter={e => { if (quizIndex > 0) e.currentTarget.style.color = 'rgba(255,255,255,0.68)' }}
             onMouseLeave={e => { e.currentTarget.style.color = quizIndex === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.38)' }}
             style={{
-              padding: '7px 14px', fontSize: 13, borderRadius: 8,
+              padding: isMobile ? '11px 14px' : '7px 14px',
+              fontSize: isMobile ? 14 : 13, borderRadius: 8,
               color: quizIndex === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.38)',
               background: 'none', border: 'none',
               cursor: quizIndex === 0 ? 'not-allowed' : 'pointer',
               transition: 'color 0.15s',
+              minHeight: isMobile ? 44 : 'auto',
             }}
           >
             ← Previous
@@ -221,12 +226,14 @@ export default function Quiz({ quizIndex, quizAnswers, onAnswer, onNext, onBack 
             onMouseEnter={e => { if (hasAnswer) e.currentTarget.style.transform = 'scale(1.04)' }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
             style={{
-              padding: '7px 18px', fontSize: 13, fontWeight: 500, borderRadius: 8,
+              padding: isMobile ? '11px 20px' : '7px 18px',
+              fontSize: isMobile ? 14 : 13, fontWeight: 500, borderRadius: 8,
               border: 'none', cursor: hasAnswer ? 'pointer' : 'not-allowed',
               background: hasAnswer ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'rgba(255,255,255,0.05)',
               color: hasAnswer ? '#fff' : 'rgba(255,255,255,0.20)',
               animation: hasAnswer ? 'next-pulse 2.6s ease-in-out infinite' : 'none',
               transition: 'background 0.2s ease, color 0.2s ease, transform 0.15s ease',
+              minHeight: isMobile ? 44 : 'auto',
             }}
           >
             {isLast ? 'Submit →' : 'Next →'}
