@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { CHALLENGES } from './challengeData'
 import { useMobile } from './useMobile'
 
-const BORDER = 'rgba(255,255,255,0.055)'
-const GLASS  = 'rgba(5,4,14,0.93)'
+const BORDER = 'rgba(255,255,255,0.095)'
+const GLASS  = 'rgba(14,11,28,0.96)'
 
 // ─── Single challenge card ─────────────────────────────────────────────────────
 function ChallengeCard({ challenge, idx, isDone, onComplete, isMobile }) {

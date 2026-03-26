@@ -36,19 +36,19 @@ function ImagePlaceholder({ label }) {
   return (
     <div style={{
       marginTop: 20, borderRadius: 12,
-      border: '1px dashed rgba(255,255,255,0.08)',
-      background: 'rgba(10,8,22,0.60)',
+      border: '1px dashed rgba(255,255,255,0.14)',
+      background: 'rgba(22,18,42,0.72)',
       height: 176,
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       gap: 8, userSelect: 'none',
     }}>
-      <svg style={{ width: 26, height: 26, color: 'rgba(255,255,255,0.12)' }}
+      <svg style={{ width: 26, height: 26, color: 'rgba(255,255,255,0.22)' }}
         fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round"
           d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 19.5h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
       </svg>
-      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.18)' }}>
+      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.40)' }}>
         {label}
       </span>
     </div>
@@ -60,8 +60,8 @@ function TipBox({ tip, isMobile }) {
   return (
     <div style={{
       marginTop: 16, borderRadius: 10,
-      border: '1px solid rgba(245,158,11,0.20)',
-      background: 'rgba(245,158,11,0.07)',
+      border: '1px solid rgba(245,158,11,0.32)',
+      background: 'rgba(245,158,11,0.11)',
       padding: isMobile ? '12px 14px' : '12px 16px',
       animation: 'scSlideUp 0.32s ease-out both',
       animationDelay: '0.08s',
@@ -81,7 +81,7 @@ function TipBox({ tip, isMobile }) {
           }}>
             Pro Tip
           </span>
-          <p style={{ fontSize: isMobile ? 12.5 : 13, color: 'rgba(255,255,255,0.48)', lineHeight: 1.65, margin: 0 }}>
+          <p style={{ fontSize: isMobile ? 12.5 : 13, color: 'rgba(255,255,255,0.62)', lineHeight: 1.65, margin: 0 }}>
             {tip}
           </p>
         </div>
@@ -105,9 +105,9 @@ function InlineQuiz({ quiz, isMobile, initialAnswer, onAnswer }) {
       borderRadius: 8, marginBottom: 6, cursor: answered ? 'default' : 'pointer',
       textAlign: 'left', fontSize: isMobile ? 13 : 12.5,
       transition: 'background 0.15s, border-color 0.15s',
-      border: '1px solid rgba(255,255,255,0.07)',
-      background: 'rgba(255,255,255,0.03)',
-      color: 'rgba(255,255,255,0.45)',
+      border: '1px solid rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.06)',
+      color: 'rgba(255,255,255,0.58)',
     }
     if (!answered) return base
     if (i === quiz.correct) return { ...base, background: 'rgba(12,38,20,0.80)', border: '1px solid rgba(74,222,128,0.30)', color: '#86efac' }
@@ -132,8 +132,8 @@ function InlineQuiz({ quiz, isMobile, initialAnswer, onAnswer }) {
   return (
     <div style={{
       marginTop: 14, borderRadius: 10,
-      border: '1px solid rgba(139,92,246,0.16)',
-      background: 'rgba(124,58,237,0.05)',
+      border: '1px solid rgba(139,92,246,0.26)',
+      background: 'rgba(124,58,237,0.09)',
       padding: isMobile ? '14px 14px' : '14px 16px',
       animation: 'scSlideUp 0.32s ease-out both',
       animationDelay: '0.18s',
@@ -155,8 +155,8 @@ function InlineQuiz({ quiz, isMobile, initialAnswer, onAnswer }) {
           key={i}
           onClick={() => { if (!answered) { setSelected(i); onAnswer?.(i) } }}
           style={optionStyle(i)}
-          onMouseEnter={e => { if (!answered) e.currentTarget.style.background = 'rgba(124,58,237,0.10)' }}
-          onMouseLeave={e => { if (!answered) e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+          onMouseEnter={e => { if (!answered) e.currentTarget.style.background = 'rgba(124,58,237,0.14)' }}
+          onMouseLeave={e => { if (!answered) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
         >
           <span style={letterStyle(i)}>{LETTERS[i]}</span>
           <span style={{ flex: 1 }}>{opt}</span>
@@ -243,22 +243,22 @@ function TaskCard({ task, isMobile }) {
 
 // ─── StepContent ──────────────────────────────────────────────────────────────
 export default function StepContent({ step, stepIndex, isMobile, quizAnswer, onQuizAnswer }) {
-  const cardBorder = 'rgba(255,255,255,0.065)'
+  const cardBorder = 'rgba(255,255,255,0.12)'
 
   return (
     <>
       {/* Main step card */}
       <div style={{
         borderRadius: 14,
-        background: 'linear-gradient(150deg, rgba(22,16,42,0.91) 0%, rgba(11,8,25,0.96) 100%)',
+        background: 'linear-gradient(150deg, rgba(32,26,54,0.94) 0%, rgba(18,15,38,0.97) 100%)',
         border: `1px solid ${cardBorder}`,
         padding: isMobile ? '20px 16px' : '24px',
         backdropFilter: 'blur(20px) saturate(1.2)',
         boxShadow: [
           '0 4px 32px rgba(0,0,0,0.42)',
           '0 0 80px rgba(76,36,160,0.10)',
-          'inset 0 1px 0 rgba(255,255,255,0.08)',
-          'inset 0 -1px 0 rgba(0,0,0,0.18)',
+          'inset 0 1px 0 rgba(255,255,255,0.10)',
+          'inset 0 -1px 0 rgba(0,0,0,0.12)',
         ].join(', '),
       }}>
         <div style={{ display: 'flex', gap: isMobile ? 12 : 16, alignItems: 'flex-start' }}>
@@ -266,8 +266,8 @@ export default function StepContent({ step, stepIndex, isMobile, quizAnswer, onQ
           <div style={{
             width: isMobile ? 30 : 36, height: isMobile ? 30 : 36,
             borderRadius: '50%', flexShrink: 0,
-            border: '1px solid rgba(139,92,246,0.35)',
-            background: 'rgba(124,58,237,0.10)',
+            border: '1px solid rgba(139,92,246,0.42)',
+            background: 'rgba(124,58,237,0.14)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             marginTop: 2,
           }}>
@@ -285,7 +285,7 @@ export default function StepContent({ step, stepIndex, isMobile, quizAnswer, onQ
               {step.title}
             </h2>
             <p style={{
-              fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, whiteSpace: 'pre-line',
+              fontSize: isMobile ? 13 : 14, color: 'rgba(255,255,255,0.58)', lineHeight: 1.7, whiteSpace: 'pre-line',
               overflowWrap: 'anywhere',
             }}>
               {step.description}

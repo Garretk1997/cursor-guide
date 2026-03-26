@@ -4,8 +4,8 @@
 
 html, body, #root {
   height: 100%;
-  /* Rolls Royce depth — almost-black with the faintest blue */
-  background: #030308;
+  /* Elevated midnight — readable dark with faint violet lift */
+  background: #0f0d18;
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   color-scheme: dark;
@@ -20,5 +20,5 @@ body {
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.12); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }

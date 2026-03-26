@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { CHALLENGES } from './challengeData'
 import { useMobile } from './useMobile'
 
-const BORDER  = 'rgba(255,255,255,0.055)'
-const GLASS_H = 'rgba(5,4,14,0.93)'
+const BORDER  = 'rgba(255,255,255,0.095)'
+const GLASS_H = 'rgba(14,11,28,0.96)'
 
 // Amber accent — visually distinct from the violet project/course UI
 const AMBER      = '#f59e0b'

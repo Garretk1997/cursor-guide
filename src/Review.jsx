@@ -3,8 +3,8 @@ import { QUIZ_QUESTIONS } from './quizData'
 import { useMobile } from './useMobile'
 
 const LETTERS  = ['A', 'B', 'C', 'D']
-const BORDER   = 'rgba(255,255,255,0.055)'
-const GLASS_H  = 'rgba(5,4,14,0.93)'
+const BORDER   = 'rgba(255,255,255,0.095)'
+const GLASS_H  = 'rgba(14,11,28,0.96)'
 
 export default function Review({ quizAnswers, onRestart, onBack, quizOrder }) {
   const isMobile = useMobile()

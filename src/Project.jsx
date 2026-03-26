@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { PRACTICE_PROJECTS } from './projectData'
 import { useMobile } from './useMobile'
 
-const BORDER  = 'rgba(255,255,255,0.055)'
-const GLASS_H = 'rgba(5,4,14,0.93)'
+const BORDER  = 'rgba(255,255,255,0.095)'
+const GLASS_H = 'rgba(14,11,28,0.96)'
 
 export default function Project({ moduleIndex, projectsDone, onComplete, onSkip }) {
   const project    = PRACTICE_PROJECTS[moduleIndex]

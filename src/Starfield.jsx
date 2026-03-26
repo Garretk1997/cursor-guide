@@ -70,7 +70,7 @@ export default function Starfield() {
           y: Math.random() * height,
           radius:
             r < 0.70 ? Math.random() * 0.50 + 0.15 : Math.random() * 0.75 + 0.60,
-          opacity: Math.random() * 0.50 + 0.28,
+          opacity: Math.random() * 0.46 + 0.34,
           speed: Math.random() * 0.007 + 0.002,
           phase: Math.random() * Math.PI * 2,
           phase2: Math.random() * Math.PI * 2,

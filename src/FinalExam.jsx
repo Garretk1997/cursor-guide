@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useMobile } from './useMobile'
 
 const LETTERS = ['A', 'B', 'C', 'D']
-const BORDER  = 'rgba(255,255,255,0.055)'
-const GLASS   = 'rgba(5,4,14,0.93)'
+const BORDER  = 'rgba(255,255,255,0.095)'
+const GLASS   = 'rgba(14,11,28,0.96)'
 
 const TYPE_STYLE = {
   concept:   { color: '#a78bfa', bg: 'rgba(124,58,237,0.10)',  border: 'rgba(124,58,237,0.22)' },

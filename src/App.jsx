@@ -21,16 +21,16 @@ const STORAGE_KEY = 'cursor-guide-progress'
 
 // ─── Colours (semi-transparent so stars show through) ────────────────────────
 const C = {
-  sidebar:         'rgba(8, 6, 18, 0.90)',
-  sidebarBorder:   'rgba(255,255,255,0.055)',
-  header:          'rgba(5, 4, 14, 0.93)',
-  footer:          'rgba(5, 4, 14, 0.93)',
-  card:            'rgba(16, 12, 30, 0.94)',
-  cardBorder:      'rgba(255,255,255,0.065)',
-  activeItem:      'rgba(139,92,246,0.12)',
-  activeItemBorder:'rgba(139,92,246,0.22)',
-  trackEmpty:      'rgba(255,255,255,0.06)',
-  hoverItem:       'rgba(255,255,255,0.04)',
+  sidebar:         'rgba(16, 13, 32, 0.94)',
+  sidebarBorder:   'rgba(255,255,255,0.095)',
+  header:          'rgba(14, 11, 28, 0.96)',
+  footer:          'rgba(14, 11, 28, 0.96)',
+  card:            'rgba(22, 18, 40, 0.95)',
+  cardBorder:      'rgba(255,255,255,0.10)',
+  activeItem:      'rgba(139,92,246,0.16)',
+  activeItemBorder:'rgba(139,92,246,0.32)',
+  trackEmpty:      'rgba(255,255,255,0.11)',
+  hoverItem:       'rgba(255,255,255,0.07)',
 }
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
@@ -338,15 +338,15 @@ export default function App() {
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         background: [
-          'radial-gradient(ellipse 62% 52% at 58% 36%, rgba(70,28,155,0.12) 0%, transparent 65%)',
-          'radial-gradient(ellipse 48% 42% at 16% 84%, rgba(18,42,108,0.09) 0%, transparent 58%)',
-          'linear-gradient(180deg, rgba(6,3,18,0.00) 0%, rgba(4,2,12,0.15) 100%)',
+          'radial-gradient(ellipse 62% 52% at 58% 36%, rgba(88,48,180,0.18) 0%, transparent 65%)',
+          'radial-gradient(ellipse 48% 42% at 16% 84%, rgba(32,58,128,0.12) 0%, transparent 58%)',
+          'linear-gradient(180deg, rgba(12,8,28,0.00) 0%, rgba(10,8,22,0.22) 100%)',
         ].join(', '),
         pointerEvents: 'none', zIndex: 1,
       }} />
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backdropFilter: 'blur(0.6px)', background: 'rgba(3,2,10,0.04)',
+        backdropFilter: 'blur(0.6px)', background: 'rgba(18,14,36,0.035)',
         pointerEvents: 'none', zIndex: 1,
       }} />
     </>
@@ -472,9 +472,9 @@ export default function App() {
         right:         0,
         bottom:        0,
         background: [
-          'radial-gradient(ellipse 62% 52% at 58% 36%, rgba(70,28,155,0.12) 0%, transparent 65%)',
-          'radial-gradient(ellipse 48% 42% at 16% 84%, rgba(18,42,108,0.09) 0%, transparent 58%)',
-          'linear-gradient(180deg, rgba(6,3,18,0.00) 0%, rgba(4,2,12,0.15) 100%)',
+          'radial-gradient(ellipse 62% 52% at 58% 36%, rgba(88,48,180,0.18) 0%, transparent 65%)',
+          'radial-gradient(ellipse 48% 42% at 16% 84%, rgba(32,58,128,0.12) 0%, transparent 58%)',
+          'linear-gradient(180deg, rgba(12,8,28,0.00) 0%, rgba(10,8,22,0.22) 100%)',
         ].join(', '),
         pointerEvents: 'none',
         zIndex:        1,
@@ -488,7 +488,7 @@ export default function App() {
         right:         0,
         bottom:        0,
         backdropFilter:'blur(0.6px)',
-        background:    'rgba(3,2,10,0.04)',
+        background:    'rgba(18,14,36,0.035)',
         pointerEvents: 'none',
         zIndex:        1,
       }} />
@@ -512,7 +512,7 @@ export default function App() {
         display:   'flex',
         height:    '100vh',
         overflow:  'hidden',
-        color:     '#f0eeff',
+        color:     '#f7f4ff',
       }}>
 
         {/* ══ SIDEBAR ══════════════════════════════════════════════════════ */}
@@ -547,7 +547,7 @@ export default function App() {
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#ede9fe', lineHeight: 1 }}>
                   Cursor Guide
                 </p>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 3 }}>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', marginTop: 3 }}>
                   Developer Onboarding
                 </p>
               </div>
@@ -572,7 +572,7 @@ export default function App() {
           <nav style={{ flex: 1, padding: '14px 12px', overflowY: 'auto' }}>
             <p style={{
               fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)',
               marginBottom: 8, paddingLeft: 10,
             }}>
               Modules
@@ -598,9 +598,9 @@ export default function App() {
                     marginBottom:   2,
                     border:         isActive ? `1px solid ${C.activeItemBorder}` : '1px solid transparent',
                     background:     isActive ? C.activeItem : 'transparent',
-                    color:          isActive ? '#ddd6fe'
-                                  : isDone   ? 'rgba(255,255,255,0.58)'
-                                             : 'rgba(255,255,255,0.32)',
+                    color:          isActive ? '#e9e4ff'
+                                  : isDone   ? 'rgba(255,255,255,0.72)'
+                                             : 'rgba(255,255,255,0.48)',
                     cursor:         isAccessible ? 'pointer' : 'not-allowed',
                     textAlign:      'left',
                     fontSize:       13,
@@ -627,11 +627,11 @@ export default function App() {
                     fontSize: 10, fontWeight: 500,
                     border:     isDone   ? 'none'
                               : isActive ? '1px solid rgba(139,92,246,0.7)'
-                                         : '1px solid rgba(255,255,255,0.12)',
+                                         : '1px solid rgba(255,255,255,0.18)',
                     background: isDone ? '#7c3aed' : 'transparent',
                     color:      isDone   ? '#fff'
-                              : isActive ? '#c4b5fd'
-                                         : 'rgba(255,255,255,0.40)',
+                              : isActive ? '#d4c9fe'
+                                         : 'rgba(255,255,255,0.52)',
                   }}>
                     {isDone ? '✓' : i + 1}
                   </span>
@@ -663,7 +663,7 @@ export default function App() {
           <div style={{ padding: '8px 12px 0' }}>
             <p style={{
               fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)',
               marginBottom: 6, paddingLeft: 10,
             }}>
               Practice
@@ -676,7 +676,7 @@ export default function App() {
                 borderRadius: 9, marginBottom: 2,
                 border: phase === 'challenges-hub' ? '1px solid rgba(245,158,11,0.35)' : '1px solid transparent',
                 background: phase === 'challenges-hub' ? 'rgba(245,158,11,0.10)' : 'transparent',
-                color: phase === 'challenges-hub' ? '#fde68a' : 'rgba(255,255,255,0.52)',
+                color: phase === 'challenges-hub' ? '#fde68a' : 'rgba(255,255,255,0.62)',
                 cursor: 'pointer',
                 textAlign: 'left', fontSize: 13,
                 transition: 'background 0.2s ease, color 0.2s ease',
@@ -707,7 +707,7 @@ export default function App() {
           <div style={{ padding: '8px 12px 0' }}>
             <p style={{
               fontSize: 10, fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)',
               marginBottom: 6, paddingLeft: 10,
             }}>
               Capstone
@@ -722,8 +722,8 @@ export default function App() {
                 border: phase === 'capstone' ? '1px solid rgba(245,158,11,0.35)' : '1px solid transparent',
                 background: phase === 'capstone' ? 'rgba(245,158,11,0.10)' : 'transparent',
                 color: modulesDone.size < SECTIONS.length
-                  ? 'rgba(255,255,255,0.15)'
-                  : phase === 'capstone' ? '#fde68a' : 'rgba(255,255,255,0.55)',
+                  ? 'rgba(255,255,255,0.22)'
+                  : phase === 'capstone' ? '#fde68a' : 'rgba(255,255,255,0.68)',
                 cursor: modulesDone.size < SECTIONS.length ? 'not-allowed' : 'pointer',
                 textAlign: 'left', fontSize: 13,
                 transition: 'background 0.2s ease, color 0.2s ease',
@@ -755,7 +755,7 @@ export default function App() {
           {/* Skill progression + reset */}
           <div style={{ padding: '14px 14px 0', borderTop: `1px solid ${C.sidebarBorder}` }}>
             <p style={{
-              fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.18)',
+              fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.32)',
               textTransform: 'uppercase', letterSpacing: '0.10em', marginBottom: 10,
             }}>
               Skill Progress
@@ -770,12 +770,12 @@ export default function App() {
             <button
               onClick={handleReset}
               style={{
-                width: '100%', fontSize: 10, color: 'rgba(255,255,255,0.30)',
+                width: '100%', fontSize: 10, color: 'rgba(255,255,255,0.44)',
                 background: 'none', border: 'none', cursor: 'pointer',
                 padding: '12px 0 14px', textAlign: 'center', transition: 'color 0.15s',
               }}
               onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.30)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.44)'}
             >
               Reset progress
             </button>
@@ -817,11 +817,11 @@ export default function App() {
                     <span style={{ display: 'block', width: 17, height: 1.5, background: 'currentColor', borderRadius: 9999 }} />
                   </button>
                 )}
-                <span style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.48)' }}>
                   Module {moduleIndex + 1}/{SECTIONS.length}
                 </span>
-                <span style={{ color: 'rgba(255,255,255,0.12)' }}>·</span>
-                <span style={{ color: 'rgba(255,255,255,0.25)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.18)' }}>·</span>
+                <span style={{ color: 'rgba(255,255,255,0.38)' }}>
                   Step {stepIndex + 1}/{section.steps.length}
                 </span>
               </div>
@@ -835,8 +835,8 @@ export default function App() {
                     {tier.label}
                   </span>
                 </div>
-                <span style={{ color: 'rgba(255,255,255,0.10)' }}>·</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.32)', fontWeight: 500 }}>
+                <span style={{ color: 'rgba(255,255,255,0.16)' }}>·</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(255,255,255,0.48)', fontWeight: 500 }}>
                   {totalScore}%
                 </span>
               </div>
@@ -914,8 +914,8 @@ export default function App() {
                 }}>
                   Module {moduleIndex + 1}
                 </span>
-                <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: 12 }}>/</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.30)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>/</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.48)' }}>
                   {section.title}
                 </span>
               </div>
@@ -936,7 +936,7 @@ export default function App() {
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 7,
                   marginTop: 22, fontSize: 12,
-                  color: 'rgba(255,255,255,0.15)',
+                  color: 'rgba(255,255,255,0.28)',
                   userSelect: 'none',
                 }}>
                   <svg style={{ width: 13, height: 13, animation: 'bounce 1.5s infinite' }}
@@ -971,13 +971,13 @@ export default function App() {
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: isMobile ? '11px 14px' : '7px 14px',
                   fontSize: isMobile ? 14 : 13, borderRadius: 8,
-                  color: isFirst ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.55)',
+                  color: isFirst ? 'rgba(255,255,255,0.36)' : 'rgba(255,255,255,0.68)',
                   background: 'none', border: 'none', cursor: isFirst ? 'not-allowed' : 'pointer',
                   transition: 'color 0.15s',
                   minHeight: isMobile ? 44 : 'auto',
                 }}
                 onMouseEnter={e => { if (!isFirst) e.currentTarget.style.color = 'rgba(255,255,255,0.85)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = isFirst ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.55)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = isFirst ? 'rgba(255,255,255,0.36)' : 'rgba(255,255,255,0.68)' }}
               >
                 ← Previous
               </button>
@@ -991,7 +991,7 @@ export default function App() {
                     height:     isMobile ? 5 : 6,
                     background: i < stepIndex   ? 'rgba(124,58,237,0.5)'
                               : i === stepIndex ? '#7c3aed'
-                                                : 'rgba(255,255,255,0.10)',
+                                                : 'rgba(255,255,255,0.16)',
                     transition: 'all 0.3s ease',
                   }} />
                 ))}
@@ -1027,9 +1027,9 @@ export default function App() {
                     border: 'none', cursor: canProceed ? 'pointer' : 'not-allowed',
                     transition: 'background 0.2s ease, color 0.2s ease, transform 0.15s ease',
                     background: canProceed
-                      ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
-                      : 'rgba(255,255,255,0.10)',
-                    color: canProceed ? '#fff' : 'rgba(255,255,255,0.34)',
+                      ? 'linear-gradient(135deg, #9555f8, #7c3aed)'
+                      : 'rgba(255,255,255,0.16)',
+                    color: canProceed ? '#fff' : 'rgba(255,255,255,0.50)',
                     animation: canProceed ? 'next-pulse 2.6s ease-in-out infinite' : 'none',
                     minHeight: isMobile ? 44 : 'auto',
                   }}

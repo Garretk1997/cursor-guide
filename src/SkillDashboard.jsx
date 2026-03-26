@@ -3,9 +3,9 @@ import { useMobile } from './useMobile'
 const N = 5  // total modules / projects / challenges
 
 const LEVEL_STYLE = {
-  Beginner:     { color: '#a78bfa', bar: '#7c3aed', bg: 'rgba(124,58,237,0.09)', border: 'rgba(124,58,237,0.20)', glow: 'rgba(124,58,237,0.35)' },
-  Intermediate: { color: '#38bdf8', bar: '#0ea5e9', bg: 'rgba(14,165,233,0.09)', border: 'rgba(56,189,248,0.20)', glow: 'rgba(56,189,248,0.35)'  },
-  Advanced:     { color: '#4ade80', bar: '#22c55e', bg: 'rgba(34,197,94,0.09)',  border: 'rgba(74,222,128,0.20)', glow: 'rgba(74,222,128,0.35)'   },
+  Beginner:     { color: '#b9a3fc', bar: '#8b5cf6', bg: 'rgba(124,58,237,0.14)', border: 'rgba(124,58,237,0.28)', glow: 'rgba(124,58,237,0.45)' },
+  Intermediate: { color: '#5ac8fa', bar: '#22bff0', bg: 'rgba(14,165,233,0.14)', border: 'rgba(56,189,248,0.28)', glow: 'rgba(56,189,248,0.45)'  },
+  Advanced:     { color: '#5ee98a', bar: '#34d46a', bg: 'rgba(34,197,94,0.14)',  border: 'rgba(74,222,128,0.28)', glow: 'rgba(74,222,128,0.45)'   },
 }
 
 export function calcSkillOverall(modulesDone, projectsDone, challengesDone, bestScore) {
@@ -53,7 +53,7 @@ function CompactView({ overall, level, ls, modulesDone, projectsDone, challenges
             {level}
           </span>
         </div>
-        <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(255,255,255,0.28)' }}>
+        <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(255,255,255,0.42)' }}>
           {overall}%
         </span>
       </div>
@@ -61,7 +61,7 @@ function CompactView({ overall, level, ls, modulesDone, projectsDone, challenges
       {/* Overall bar */}
       <div style={{
         height: 2, borderRadius: 9999,
-        background: 'rgba(255,255,255,0.06)', overflow: 'hidden',
+        background: 'rgba(255,255,255,0.10)', overflow: 'hidden',
         marginBottom: 4,
       }}>
         <div style={{
@@ -73,17 +73,17 @@ function CompactView({ overall, level, ls, modulesDone, projectsDone, challenges
       </div>
 
       {/* Next milestone hint */}
-      <p style={{ fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.18)', marginBottom: 11 }}>
+      <p style={{ fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.36)', marginBottom: 11 }}>
         {nextMsg}
       </p>
 
       {/* Mini stat rows */}
       {stats.map(({ label, pct, val }) => (
         <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', width: 60, flexShrink: 0 }}>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.42)', width: 60, flexShrink: 0 }}>
             {label}
           </span>
-          <div style={{ flex: 1, height: 1.5, borderRadius: 9999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+          <div style={{ flex: 1, height: 1.5, borderRadius: 9999, background: 'rgba(255,255,255,0.10)', overflow: 'hidden' }}>
             <div style={{
               height: '100%', borderRadius: 9999,
               background: pct >= 100 ? '#4ade80' : 'rgba(124,58,237,0.55)',
@@ -91,7 +91,7 @@ function CompactView({ overall, level, ls, modulesDone, projectsDone, challenges
               transition: 'width 0.6s ease-out',
             }} />
           </div>
-          <span style={{ fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.22)', width: 24, textAlign: 'right', flexShrink: 0 }}>
+          <span style={{ fontSize: 9, fontFamily: 'monospace', color: 'rgba(255,255,255,0.46)', width: 24, textAlign: 'right', flexShrink: 0 }}>
             {val}
           </span>
         </div>
@@ -114,7 +114,7 @@ function FullView({ overall, level, ls, modulesDone, projectsDone, challengesDon
   return (
     <div style={{
       borderRadius: 14,
-      background: 'linear-gradient(150deg, rgba(16,12,30,0.88) 0%, rgba(9,7,20,0.92) 100%)',
+      background: 'linear-gradient(150deg, rgba(26,22,46,0.92) 0%, rgba(16,13,34,0.95) 100%)',
       border: `1px solid ${ls.border}`,
       backdropFilter: 'blur(14px)',
       padding: isMobile ? '16px 14px' : '18px 20px',
@@ -122,7 +122,7 @@ function FullView({ overall, level, ls, modulesDone, projectsDone, challengesDon
       boxShadow: [
         '0 4px 32px rgba(0,0,0,0.38)',
         `0 0 60px ${ls.glow}18`,
-        'inset 0 1px 0 rgba(255,255,255,0.07)',
+        'inset 0 1px 0 rgba(255,255,255,0.10)',
       ].join(', '),
     }}>
 
@@ -130,7 +130,7 @@ function FullView({ overall, level, ls, modulesDone, projectsDone, challengesDon
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <span style={{
           fontSize: 10, fontFamily: 'monospace',
-          color: 'rgba(255,255,255,0.22)',
+          color: 'rgba(255,255,255,0.40)',
           textTransform: 'uppercase', letterSpacing: '0.10em',
         }}>
           Skill Progress
@@ -156,7 +156,7 @@ function FullView({ overall, level, ls, modulesDone, projectsDone, challengesDon
 
       {/* Overall progress bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: isMobile ? 12 : 14 }}>
-        <div style={{ flex: 1, height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+        <div style={{ flex: 1, height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.11)', overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 9999,
             background: `linear-gradient(90deg, ${ls.bar}99, ${ls.bar})`,
@@ -181,13 +181,13 @@ function FullView({ overall, level, ls, modulesDone, projectsDone, challengesDon
           return (
             <div key={label} style={{
               borderRadius: 10,
-              background: done ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.028)',
-              border: `1px solid ${done ? 'rgba(74,222,128,0.16)' : 'rgba(255,255,255,0.06)'}`,
+              background: done ? 'rgba(34,197,94,0.10)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${done ? 'rgba(74,222,128,0.22)' : 'rgba(255,255,255,0.10)'}`,
               padding: isMobile ? '10px 10px' : '10px 12px',
             }}>
               <div style={{
                 fontSize: 9, fontFamily: 'monospace',
-                color: 'rgba(255,255,255,0.25)',
+                color: 'rgba(255,255,255,0.42)',
                 textTransform: 'uppercase', letterSpacing: '0.08em',
                 marginBottom: 5,
               }}>
@@ -202,17 +202,17 @@ function FullView({ overall, level, ls, modulesDone, projectsDone, challengesDon
               </div>
               <div style={{
                 height: 2, borderRadius: 9999,
-                background: 'rgba(255,255,255,0.06)', overflow: 'hidden',
+                background: 'rgba(255,255,255,0.10)', overflow: 'hidden',
                 marginBottom: 5,
               }}>
                 <div style={{
                   height: '100%', borderRadius: 9999,
-                  background: done ? '#4ade80' : 'rgba(124,58,237,0.55)',
+                  background: done ? '#4ade80' : 'rgba(124,58,237,0.62)',
                   width: `${pct}%`,
                   transition: 'width 0.7s ease-out',
                 }} />
               </div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.20)', fontFamily: 'monospace' }}>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', fontFamily: 'monospace' }}>
                 {sub}
               </div>
             </div>
